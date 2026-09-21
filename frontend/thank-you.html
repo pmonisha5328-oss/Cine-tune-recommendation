@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CineTune Feedback</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <style>
+    body {
+      background: linear-gradient(135deg, #1a1a4a, #2d1b69);
+      color: white;
+      font-family: 'Poppins', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .box {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 20px;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    }
+
+    h1 {
+      background: linear-gradient(45deg, #ff0080, #ff8c00, #40e0d0);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      margin-bottom: 10px;
+    }
+
+    select, textarea, button, input {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      border-radius: 8px;
+      border: none;
+      outline: none;
+    }
+
+    select, textarea {
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+    }
+
+    textarea::placeholder {
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    button {
+      background: linear-gradient(45deg, #ff0080, #ff8c00);
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 12px rgba(255, 140, 0, 0.5);
+    }
+
+    #adminPanel {
+      display: none;
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    #downloadSection {
+      display: none;
+      margin-top: 10px;
+    }
+
+    .success {
+      color: #40e0d0;
+      font-size: 0.9rem;
+      margin-top: 10px;
+    }
+
+    .error {
+      color: #ff6b6b;
+      font-size: 0.9rem;
+      margin-top: 10px;
+    }
+
+    .admin-link {
+      color: #ff8c00;
+      cursor: pointer;
+      margin-top: 20px;
+      display: inline-block;
+    }
+
+    .admin-link:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h1>Thank You 🎬</h1>
+    <p>We value your feedback!</p>
+
+    <select id="rating">
+      <option value="">Rate your experience</option>
+      <option value="5">😍 Excellent</option>
+      <option value="4">😊 Good</option>
+      <option value="3">😐 Average</option>
+      <option value="2">😕 Poor</option>
+      <option value="1">😞 Bad</option>
+    </select>
+
+    <textarea id="feedback" placeholder="Write your feedback (optional)..."></textarea>
+
+    <button id="submitBtn">Submit Feedback</button>
+
+    <div id="statusMsg"></div>
+
+    <span class="admin-link" id="adminAccess">Admin Login 🔒</span>
+
+    <div id="adminPanel">
+      <input type="password" id="adminPass" placeholder="Enter Admin Password" />
+      <button id="adminLoginBtn">Login</button>
+      <div id="downloadSection">
+        <button id="downloadBtn">📥 Download Feedback Excel</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let feedbackData = JSON.parse(localStorage.getItem("cineTuneFeedback") || "[]");
+    const submitBtn = document.getElementById("submitBtn");
+    const statusMsg = document.getElementById("statusMsg");
+
+    submitBtn.addEventListener("click", () => {
+      const rating = document.getElementById("rating").value;
+      const feedback = document.getElementById("feedback").value.trim();
+
+      if (!rating) {
+        statusMsg.textContent = "Please select a rating before submitting.";
+        statusMsg.className = "error";
+        return;
+      }
+
+      const entry = {
+        rating: rating,
+        feedback: feedback,
+        timestamp: new Date().toLocaleString()
+      };
+
+      feedbackData.push(entry);
+      localStorage.setItem("cineTuneFeedback", JSON.stringify(feedbackData));
+
+      statusMsg.textContent = "✅ Feedback submitted successfully!";
+      statusMsg.className = "success";
+
+      document.getElementById("rating").value = "";
+      document.getElementById("feedback").value = "";
+    });
+
+    // ADMIN LOGIN
+    const adminAccess = document.getElementById("adminAccess");
+    const adminPanel = document.getElementById("adminPanel");
+    const adminLoginBtn = document.getElementById("adminLoginBtn");
+    const adminPass = document.getElementById("adminPass");
+    const downloadSection = document.getElementById("downloadSection");
+    const downloadBtn = document.getElementById("downloadBtn");
+
+    adminAccess.addEventListener("click", () => {
+      adminPanel.style.display = adminPanel.style.display === "block" ? "none" : "block";
+    });
+
+    adminLoginBtn.addEventListener("click", () => {
+      if (adminPass.value === "cineadmin123") {
+        alert("✅ Admin access granted");
+        downloadSection.style.display = "block";
+      } else {
+        alert("❌ Incorrect password");
+      }
+    });
+
+    downloadBtn.addEventListener("click", () => {
+      if (feedbackData.length === 0) {
+        alert("No feedback found to download!");
+        return;
+      }
+
+      const ws = XLSX.utils.json_to_sheet(feedbackData);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Feedback");
+      XLSX.writeFile(wb, "CineTune_Feedback.xlsx");
+    });
+  </script>
+</body>
+</html>

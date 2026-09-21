@@ -1,0 +1,1139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mood Selection - CineTune</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #0c0c2e 0%, #1a1a4a 50%, #2d1b69 100%);
+      color: #fff;
+      min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* CineTune Animation Styles */
+    .film-reel {
+      position: absolute;
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #333 30%, #000 70%);
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+      animation: spin 20s linear infinite;
+      z-index: 1;
+    }
+
+    .reel-1 {
+  top: 85%;
+  left: 15%;
+}
+
+    .reel-2 {
+      bottom: 20%;
+      right: 8%;
+    }
+
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    .film-strip {
+      position: absolute;
+      width: 100%;
+      height: 40px;
+      background: repeating-linear-gradient(90deg, 
+          transparent, 
+          transparent 25px, 
+          rgba(255, 255, 255, 0.3) 25px, 
+          rgba(255, 255, 255, 0.3) 50px);
+      animation: filmMove 25s linear infinite;
+      z-index: 1;
+    }
+
+    .strip-1 {
+      top: 25%;
+    }
+
+    .strip-2 {
+      bottom: 30%;
+    }
+
+    @keyframes filmMove {
+      0% {
+        transform: translateX(-100%);
+      }
+      100% {
+        transform: translateX(100%);
+      }
+    }
+
+    .music-note {
+      position: absolute;
+      font-size: 2.5rem;
+      opacity: 0.7;
+      z-index: 1;
+      animation: float 8s ease-in-out infinite;
+    }
+
+    .note-1 {
+      top: 20%;
+      left: 15%;
+      color: #ff0080;
+      animation-delay: 0s;
+    }
+
+    .note-2 {
+      top: 65%;
+      right: 20%;
+      color: #40e0d0;
+      animation-delay: 1s;
+    }
+
+    .note-3 {
+      top: 40%;
+      left: 5%;
+      color: #ff8c00;
+      animation-delay: 2s;
+    }
+
+    .note-4 {
+      top: 75%;
+      right: 5%;
+      color: #ff0080;
+      animation-delay: 3s;
+    }
+
+    .note-5 {
+      top: 15%;
+      right: 15%;
+      color: #40e0d0;
+      animation-delay: 4s;
+    }
+
+    @keyframes float {
+      0% {
+        transform: translateY(0) rotate(0deg);
+      }
+      50% {
+        transform: translateY(-25px) rotate(10deg);
+      }
+      100% {
+        transform: translateY(0) rotate(0deg);
+      }
+    }
+
+    .equalizer {
+      position: absolute;
+      bottom: 25%;
+      left: 15%;
+      display: flex;
+      align-items: flex-end;
+      gap: 4px;
+      height: 40px;
+      z-index: 1;
+    }
+
+    .bar {
+      width: 6px;
+      background: linear-gradient(to top, #ff0080, #ff8c00, #40e0d0);
+      border-radius: 3px;
+      animation: equalize 1.5s ease infinite alternate;
+    }
+
+    .bar:nth-child(1) { animation-delay: 0s; }
+    .bar:nth-child(2) { animation-delay: 0.1s; }
+    .bar:nth-child(3) { animation-delay: 0.2s; }
+    .bar:nth-child(4) { animation-delay: 0.3s; }
+    .bar:nth-child(5) { animation-delay: 0.4s; }
+    .bar:nth-child(6) { animation-delay: 0.5s; }
+    .bar:nth-child(7) { animation-delay: 0.6s; }
+    .bar:nth-child(8) { animation-delay: 0.7s; }
+
+    @keyframes equalize {
+      0% {
+        height: 5px;
+      }
+      100% {
+        height: 40px;
+      }
+    }
+
+    .spotlight {
+      position: absolute;
+      width: 300px;
+      height: 300px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255, 140, 0, 0.2) 0%, transparent 70%);
+      filter: blur(20px);
+      animation: spotlightMove 15s ease-in-out infinite alternate;
+      z-index: 0;
+    }
+
+    .spotlight-1 {
+      top: 10%;
+      left: 10%;
+    }
+
+    .spotlight-2 {
+      bottom: 10%;
+      right: 10%;
+      background: radial-gradient(circle, rgba(64, 224, 208, 0.2) 0%, transparent 70%);
+      animation-delay: 5s;
+    }
+
+    @keyframes spotlightMove {
+      0% {
+        transform: translate(0, 0);
+      }
+      100% {
+        transform: translate(100px, 50px);
+      }
+    }
+
+    .popcorn {
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      background: #ff8c00;
+      border-radius: 50% 50% 50% 0;
+      opacity: 0.7;
+      z-index: 1;
+      animation: popcorn 15s linear infinite;
+    }
+
+    .popcorn-1 {
+      top: 30%;
+      right: 15%;
+      animation-delay: 0s;
+    }
+
+    .popcorn-2 {
+      top: 40%;
+      right: 25%;
+      animation-delay: 2s;
+    }
+
+    .popcorn-3 {
+      top: 50%;
+      right: 20%;
+      animation-delay: 4s;
+    }
+
+    .popcorn-4 {
+      top: 60%;
+      right: 10%;
+      animation-delay: 6s;
+    }
+
+    @keyframes popcorn {
+      0% {
+        transform: translateY(0) rotate(0deg);
+        opacity: 0;
+      }
+      10% {
+        opacity: 0.7;
+      }
+      90% {
+        opacity: 0.7;
+      }
+      100% {
+        transform: translateY(500px) rotate(360deg);
+        opacity: 0;
+      }
+    }
+
+    .vinyl {
+      position: absolute;
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #000 30%, #333 31%, #333 40%, #000 41%);
+      box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+      animation: spin 15s linear infinite;
+      z-index: 1;
+    }
+
+    .vinyl-1 {
+      bottom: 20%;
+      left: 10%;
+    }
+
+    .vinyl-2 {
+      top: 20%;
+      right: 10%;
+    }
+
+    /* Background particles */
+    .particle {
+      position: absolute;
+      width: 4px;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.5);
+      border-radius: 50%;
+      animation: particleFloat 20s linear infinite;
+      z-index: 0;
+    }
+
+    @keyframes particleFloat {
+      0% {
+        transform: translateY(100vh) translateX(0);
+        opacity: 0;
+      }
+      10% {
+        opacity: 1;
+      }
+      90% {
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(-100px) translateX(20px);
+        opacity: 0;
+      }
+    }
+
+    /* Create multiple particles */
+    .particle:nth-child(1) { left: 10%; animation-delay: 0s; }
+    .particle:nth-child(2) { left: 20%; animation-delay: 2s; }
+    .particle:nth-child(3) { left: 30%; animation-delay: 4s; }
+    .particle:nth-child(4) { left: 40%; animation-delay: 6s; }
+    .particle:nth-child(5) { left: 50%; animation-delay: 8s; }
+    .particle:nth-child(6) { left: 60%; animation-delay: 10s; }
+    .particle:nth-child(7) { left: 70%; animation-delay: 12s; }
+    .particle:nth-child(8) { left: 80%; animation-delay: 14s; }
+    .particle:nth-child(9) { left: 90%; animation-delay: 16s; }
+    .particle:nth-child(10) { left: 95%; animation-delay: 18s; }
+
+    /* Header Styles */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 40px;
+      position: relative;
+      z-index: 10;
+    }
+
+    .header-buttons {
+      display: flex;
+      gap: 15px;
+    }
+
+    .nav-btn {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: white;
+      padding: 10px 20px;
+      border-radius: 25px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      backdrop-filter: blur(10px);
+    }
+
+    .nav-btn:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: translateY(-3px);
+    }
+
+    .back-btn {
+      background: linear-gradient(45deg, #00b4db, #0083b0);
+    }
+
+    .exit-btn {
+      background: linear-gradient(45deg, #ff416c, #ff4b2b);
+      padding: 8px 16px;
+      font-size: 0.85rem;
+      width: auto;
+      min-width: 80px;
+    }
+
+    /* Animated CineTune Title */
+    .title {
+      font-size: 4.5rem;
+      font-weight: 800;
+      background: linear-gradient(45deg, #ff0080, #ff8c00, #40e0d0, #ff0080);
+      background-size: 300% 300%;
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      text-align: center;
+      flex: 1;
+      margin: 0 20px;
+      letter-spacing: 2px;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+      animation: titleGradient 3s ease infinite, titlePulse 2s ease-in-out infinite alternate;
+      position: relative;
+    }
+
+    @keyframes titleGradient {
+      0% {
+        background-position: 0% 50%;
+      }
+      50% {
+        background-position: 100% 50%;
+      }
+      100% {
+        background-position: 0% 50%;
+      }
+    }
+
+    @keyframes titlePulse {
+      0% {
+        transform: scale(1);
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+      }
+      100% {
+        transform: scale(1.05);
+        text-shadow: 0 5px 20px rgba(255, 140, 0, 0.5), 0 0 30px rgba(255, 0, 128, 0.3);
+      }
+    }
+
+    .title::before {
+      content: "🎬";
+      position: absolute;
+      left: -50px;
+      animation: filmRoll 2s ease-in-out infinite;
+    }
+
+    @keyframes filmRoll {
+      0% {
+        transform: rotate(0deg);
+      }
+      25% {
+        transform: rotate(90deg);
+      }
+      50% {
+        transform: rotate(180deg);
+      }
+      75% {
+        transform: rotate(270deg);
+      }
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    .profile-container {
+      position: relative;
+    }
+
+    .profile-btn {
+      background: linear-gradient(45deg, #6c5ce7, #a29bfe);
+      border: none;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 25px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+      justify-content: center;
+    }
+
+    .profile-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    .profile-btn .profile-icon {
+      font-size: 1.2rem;
+    }
+
+    .profile-dropdown {
+      display: none;
+      position: absolute;
+      top: 50px;
+      right: 0;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border-radius: 10px;
+      padding: 20px;
+      width: 280px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+      z-index: 50;
+    }
+
+    .profile-dropdown.active {
+      display: block;
+      animation: fadeIn 0.3s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .profile-header {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 15px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .profile-icon-large {
+      font-size: 3rem;
+      width: 60px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+    }
+
+    .profile-header-info h3 {
+      font-size: 1.2rem;
+      margin-bottom: 5px;
+    }
+
+    .profile-header-info p {
+      font-size: 0.8rem;
+      color: #ccc;
+    }
+
+    .profile-info {
+      font-size: 0.9rem;
+      color: #ccc;
+      line-height: 1.5;
+      margin-bottom: 15px;
+    }
+
+    .profile-info-item {
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .profile-info-label {
+      font-weight: 600;
+    }
+
+    .profile-actions {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 15px;
+    }
+
+    .profile-actions button {
+      background: linear-gradient(45deg, #ff416c, #ff4b2b);
+      border: none;
+      color: white;
+      padding: 8px 15px;
+      border-radius: 25px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .profile-actions button:hover {
+      transform: scale(1.05);
+    }
+
+    .profile-actions button.edit-btn {
+      background: linear-gradient(45deg, #00b4db, #0083b0);
+    }
+
+    main {
+      text-align: center;
+      padding: 60px 20px;
+      position: relative;
+      z-index: 5;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 15px;
+      background: linear-gradient(45deg, #ff0080, #ff8c00, #40e0d0);
+      -webkit-background-clip: text;
+      color: transparent;
+      animation: glow 2s ease-in-out infinite alternate;
+    }
+
+    @keyframes glow {
+      0% { text-shadow: 0 0 10px #ff8c00; }
+      100% { text-shadow: 0 0 25px #ff0080; }
+    }
+
+    p.subtitle {
+      font-size: 1.1rem;
+      margin-bottom: 40px;
+      color: #ddd;
+    }
+
+    /* Toggle */
+    .toggle-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 40px;
+      gap: 10px;
+    }
+
+    .toggle-label {
+      font-size: 1rem;
+      color: #fff;
+      font-weight: 600;
+    }
+
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 60px;
+      height: 30px;
+    }
+
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(45deg, #ff416c, #ff4b2b);
+      border-radius: 30px;
+      transition: 0.4s;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 22px;
+      width: 22px;
+      left: 4px;
+      bottom: 4px;
+      background-color: white;
+      border-radius: 50%;
+      transition: 0.4s;
+    }
+
+    input:checked + .slider {
+      background: linear-gradient(45deg, #00b4db, #0083b0);
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(30px);
+    }
+
+    .mood-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 30px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .mood-option {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border-radius: 15px;
+      padding: 40px 20px;
+      text-align: center;
+      transition: all 0.3s ease;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+      cursor: pointer;
+      position: relative;
+      z-index: 5;
+    }
+
+    .mood-option:hover {
+      transform: translateY(-5px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .mood-option.selected {
+      border: 2px solid #ff8c00;
+      box-shadow: 0 0 20px rgba(255, 140, 0, 0.6);
+    }
+
+    .mood-option span {
+      font-size: 3rem;
+      display: block;
+      margin-bottom: 15px;
+    }
+
+    .recommend-btn {
+      margin-top: 40px;
+      padding: 15px 40px;
+      font-size: 1rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 30px;
+      background: linear-gradient(45deg, #ff416c, #ff4b2b);
+      color: white;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      z-index: 5;
+    }
+
+    .recommend-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Compact Edit Profile Modal */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      z-index: 100;
+      backdrop-filter: blur(5px);
+    }
+
+    .modal-overlay.active {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .edit-profile-modal {
+      background: linear-gradient(135deg, #1a1a4a 0%, #2d1b69 100%);
+      border-radius: 15px;
+      width: 90%;
+      max-width: 380px;
+      padding: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+      max-height: 85vh;
+      overflow-y: auto;
+      position: relative;
+      z-index: 101;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+
+    .modal-header h2 {
+      background: linear-gradient(45deg, #ff0080, #ff8c00);
+      -webkit-background-clip: text;
+      color: transparent;
+      font-size: 1.4rem;
+    }
+
+    .close-modal {
+      background: none;
+      border: none;
+      color: #fff;
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+
+    .form-group {
+      margin-bottom: 12px;
+      text-align: left;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 0.85rem;
+      color: #ddd;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      font-size: 0.9rem;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: #ff8c00;
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    .modal-actions button {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .cancel-btn {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+    }
+
+    .save-btn {
+      background: linear-gradient(45deg, #ff416c, #ff4b2b);
+      color: white;
+    }
+
+    .cancel-btn:hover, .save-btn:hover {
+      transform: translateY(-2px);
+    }
+
+    /* Right side container for profile and exit buttons */
+    .right-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      align-items: flex-end;
+    }
+
+    .exit-btn {
+      justify-content: center;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Background Animation Elements -->
+  <div class="film-reel reel-1"></div>
+  <div class="film-reel reel-2"></div>
+  
+  <div class="film-strip strip-1"></div>
+  <div class="film-strip strip-2"></div>
+  
+  <div class="music-note note-1">♪</div>
+  <div class="music-note note-2">♫</div>
+  <div class="music-note note-3">♬</div>
+  <div class="music-note note-4">♪</div>
+  <div class="music-note note-5">♫</div>
+  
+  <div class="equalizer">
+    <div class="bar"></div>
+    <div class="bar"></div>
+    <div class="bar"></div>
+    <div class="bar"></div>
+    <div class="bar"></div>
+    <div class="bar"></div>
+    <div class="bar"></div>
+    <div class="bar"></div>
+  </div>
+  
+  <div class="spotlight spotlight-1"></div>
+  <div class="spotlight spotlight-2"></div>
+  
+  <div class="popcorn popcorn-1"></div>
+  <div class="popcorn popcorn-2"></div>
+  <div class="popcorn popcorn-3"></div>
+  <div class="popcorn popcorn-4"></div>
+  
+  <div class="vinyl vinyl-1"></div>
+  <div class="vinyl vinyl-2"></div>
+  
+  <!-- Background particles -->
+  <div class="particle"></div>
+  <div class="particle"></div>
+  <div class="particle"></div>
+  <div class="particle"></div>
+  <div class="particle"></div>
+  <div class="particle"></div>
+  <div class="particle"></div>
+  <div class="particle"></div>
+  <div class="particle"></div>
+  <div class="particle"></div>
+
+  <!-- Main Content -->
+  <header>
+    <div class="header-buttons">
+      <button class="nav-btn back-btn" onclick="goBack()">
+        Back
+      </button>
+    </div>
+    <div class="title">CineTune</div>
+    <div class="right-buttons">
+      <div class="profile-container">
+        <button id="profileBtn" class="profile-btn">
+          <span class="profile-icon">👤</span> Profile
+        </button>
+        <div class="profile-dropdown" id="profileDropdown">
+          <div class="profile-header">
+            <div class="profile-icon-large">👤</div>
+            <div class="profile-header-info">
+              <h3 id="profileUserName">User</h3>
+              <p>Member since <span id="profileMemberSince">-</span></p>
+            </div>
+          </div>
+          <div class="profile-info">
+            <div class="profile-info-item">
+              <span class="profile-info-label">Email:</span>
+              <span id="profileUserEmail">-</span>
+            </div>
+            <div class="profile-info-item">
+              <span class="profile-info-label">Full Name:</span>
+              <span id="profileFullName">-</span>
+            </div>
+            <div class="profile-info-item">
+              <span class="profile-info-label">DOB:</span>
+              <span id="profileDOB">-</span>
+            </div>
+            <div class="profile-info-item">
+              <span class="profile-info-label">Phone:</span>
+              <span id="profilePhone">-</span>
+            </div>
+            <div class="profile-info-item">
+              <span class="profile-info-label">Location:</span>
+              <span id="profileLocation">-</span>
+            </div>
+          </div>
+          <div class="profile-actions">
+            <button class="edit-btn" onclick="editProfile()">Edit Profile</button>
+            <button onclick="logout()">Logout</button>
+          </div>
+        </div>
+      </div>
+      <button class="nav-btn exit-btn" onclick="exitApp()">
+        Exit
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <h1 id="pageTitle">How Are You Feeling Today?</h1>
+    <p class="subtitle" id="pageSubtitle">
+      Select your mood and we'll recommend the perfect movies to match your vibe!
+    </p>
+
+    <!-- Toggle between Movie / Music -->
+    <div class="toggle-container">
+      <span class="toggle-label">🎥 Movies</span>
+      <label class="toggle-switch">
+        <input type="checkbox" id="modeToggle">
+        <span class="slider"></span>
+      </label>
+      <span class="toggle-label">🎵 Music</span>
+    </div>
+
+    <!-- Mood Options -->
+    <div class="mood-grid">
+      <div class="mood-option" data-mood="happy" onclick="selectMood('happy')">
+        <span>😊</span> Happy
+      </div>
+      <div class="mood-option" data-mood="sad" onclick="selectMood('sad')">
+        <span>😢</span> Sad
+      </div>
+      <div class="mood-option" data-mood="motivated" onclick="selectMood('motivated')">
+        <span>💪</span> Motivated
+      </div>
+      <div class="mood-option" data-mood="romantic" onclick="selectMood('romantic')">
+        <span>😍</span> Romantic
+      </div>
+    </div>
+
+    <button class="recommend-btn" onclick="getRecommendations()">Get My Recommendations</button>
+  </main>
+
+  <!-- Edit Profile Modal -->
+  <div class="modal-overlay" id="editProfileModal">
+    <div class="edit-profile-modal">
+      <div class="modal-header">
+        <h2>Edit Profile</h2>
+        <button class="close-modal" onclick="closeEditModal()">&times;</button>
+      </div>
+      <form id="editProfileForm">
+        <div class="form-group">
+          <label for="editFirstName">First Name</label>
+          <input type="text" id="editFirstName" required>
+        </div>
+        <div class="form-group">
+          <label for="editLastName">Last Name</label>
+          <input type="text" id="editLastName" required>
+        </div>
+        <div class="form-group">
+          <label for="editEmail">Email</label>
+          <input type="email" id="editEmail" required>
+        </div>
+        <div class="form-group">
+          <label for="editDOB">Date of Birth</label>
+          <input type="date" id="editDOB">
+        </div>
+        <div class="form-group">
+          <label for="editPhone">Phone</label>
+          <input type="tel" id="editPhone">
+        </div>
+        <div class="form-group">
+          <label for="editCity">City</label>
+          <input type="text" id="editCity">
+        </div>
+        <div class="form-group">
+          <label for="editState">State</label>
+          <input type="text" id="editState">
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="cancel-btn" onclick="closeEditModal()">Cancel</button>
+          <button type="submit" class="save-btn">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    let selectedMood = null;
+    let isMusicMode = false;
+
+    function goBack() {
+      window.location.href = "index.html";
+    }
+
+    function exitApp() {
+      window.location.href = "thank-you.html";
+    }
+
+    function loadUserData() {
+      const userData = JSON.parse(localStorage.getItem("userProfile"));
+      if (userData) {
+        document.getElementById("profileUserName").textContent = userData.first_name || "User";
+        document.getElementById("profileUserEmail").textContent = userData.email || "-";
+        document.getElementById("profileFullName").textContent =
+          `${userData.first_name || ""} ${userData.last_name || ""}`.trim();
+        document.getElementById("profileDOB").textContent = userData.dob || "-";
+        document.getElementById("profilePhone").textContent = userData.phone || "-";
+        document.getElementById("profileLocation").textContent =
+          `${userData.city || ""}, ${userData.state || ""}`.trim();
+        document.getElementById("profileMemberSince").textContent =
+          userData.saved_at ? new Date(userData.saved_at).toLocaleDateString() : "-";
+      }
+    }
+
+    document.getElementById("profileBtn").addEventListener("click", function () {
+      document.getElementById("profileDropdown").classList.toggle("active");
+    });
+
+    document.addEventListener("click", function (e) {
+      const profile = document.querySelector(".profile-container");
+      if (!profile.contains(e.target)) {
+        document.getElementById("profileDropdown").classList.remove("active");
+      }
+    });
+
+    function selectMood(mood) {
+      selectedMood = mood;
+      document.querySelectorAll(".mood-option").forEach((el) => el.classList.remove("selected"));
+      event.currentTarget.classList.add("selected");
+    }
+
+    document.getElementById("modeToggle").addEventListener("change", function () {
+      isMusicMode = this.checked;
+      const title = document.getElementById("pageTitle");
+      const subtitle = document.getElementById("pageSubtitle");
+
+      if (isMusicMode) {
+        title.textContent = "What's Your Music Vibe?";
+        subtitle.textContent = "Select your mood and we'll recommend the perfect music to match your vibe!";
+      } else {
+        title.textContent = "How Are You Feeling Today?";
+        subtitle.textContent = "Select your mood and we'll recommend the perfect movies to match your vibe!";
+      }
+    });
+
+    function getRecommendations() {
+      if (!selectedMood) {
+        alert("Please select a mood first!");
+        return;
+      }
+
+      localStorage.setItem("selectedMood", selectedMood);
+      localStorage.setItem("selectedMode", isMusicMode ? "music" : "movie");
+
+      const page = isMusicMode ? "music-recommendation.html" : "movie-recommendation.html";
+      window.location.href = `${page}?mood=${selectedMood}`;
+    }
+
+    function editProfile() {
+      const userData = JSON.parse(localStorage.getItem("userProfile")) || {};
+      
+      // Fill the form with current data
+      document.getElementById("editFirstName").value = userData.first_name || "";
+      document.getElementById("editLastName").value = userData.last_name || "";
+      document.getElementById("editEmail").value = userData.email || "";
+      document.getElementById("editDOB").value = userData.dob || "";
+      document.getElementById("editPhone").value = userData.phone || "";
+      document.getElementById("editCity").value = userData.city || "";
+      document.getElementById("editState").value = userData.state || "";
+      
+      // Show the modal
+      document.getElementById("editProfileModal").classList.add("active");
+    }
+
+    function closeEditModal() {
+      document.getElementById("editProfileModal").classList.remove("active");
+    }
+
+    document.getElementById("editProfileForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+      
+      const userData = JSON.parse(localStorage.getItem("userProfile")) || {};
+      
+      // Update user data with form values
+      userData.first_name = document.getElementById("editFirstName").value;
+      userData.last_name = document.getElementById("editLastName").value;
+      userData.email = document.getElementById("editEmail").value;
+      userData.dob = document.getElementById("editDOB").value;
+      userData.phone = document.getElementById("editPhone").value;
+      userData.city = document.getElementById("editCity").value;
+      userData.state = document.getElementById("editState").value;
+      
+      // Update the saved_at timestamp
+      userData.saved_at = new Date().toISOString();
+      
+      // Save to localStorage
+      localStorage.setItem("userProfile", JSON.stringify(userData));
+      
+      // Reload the user data to update the UI
+      loadUserData();
+      
+      // Close the modal
+      closeEditModal();
+      
+      alert("Profile updated successfully!");
+    });
+
+    function logout() {
+      localStorage.clear();
+      window.location.href = "index.html";
+    }
+
+    document.addEventListener("DOMContentLoaded", loadUserData);
+  </script>
+</body>
+</html>

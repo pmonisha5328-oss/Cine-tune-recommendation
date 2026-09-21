@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CineTune User Satisfaction Analysis</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      background: linear-gradient(135deg, #1a1a4a, #2d1b69);
+      color: white;
+      font-family: 'Poppins', sans-serif;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    h1 {
+      background: linear-gradient(45deg, #ff0080, #ff8c00, #40e0d0);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      margin-bottom: 10px;
+    }
+
+    .upload-section {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 20px;
+      border-radius: 10px;
+      margin-bottom: 30px;
+      text-align: center;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    }
+
+    .file-input {
+      margin: 15px 0;
+    }
+
+    button {
+      background: linear-gradient(45deg, #ff0080, #ff8c00);
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 12px rgba(255, 140, 0, 0.5);
+    }
+
+    .dashboard {
+      display: none;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      margin-top: 30px;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    }
+
+    .stat-card {
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 2.5rem;
+      font-weight: bold;
+      margin: 10px 0;
+      background: linear-gradient(45deg, #ff0080, #ff8c00);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .chart-container {
+      height: 300px;
+      position: relative;
+    }
+
+    .feedback-list {
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    .feedback-item {
+      background: rgba(255, 255, 255, 0.05);
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 5px;
+    }
+
+    .rating-stars {
+      color: #ffc107;
+      margin-bottom: 5px;
+    }
+
+    .feedback-text {
+      font-style: italic;
+      margin-top: 5px;
+    }
+
+    .timestamp {
+      font-size: 0.8rem;
+      color: rgba(255, 255, 255, 0.7);
+      text-align: right;
+    }
+
+    .no-data {
+      text-align: center;
+      padding: 20px;
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .back-link {
+      display: inline-block;
+      margin-top: 20px;
+      color: #ff8c00;
+      text-decoration: none;
+    }
+
+    .back-link:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>CineTune User Satisfaction Analysis</h1>
+      <p>Upload your feedback Excel file to view user satisfaction metrics</p>
+    </header>
+
+    <div class="upload-section">
+      <h2>Upload Feedback Data</h2>
+      <input type="file" id="fileInput" class="file-input" accept=".xlsx, .xls" />
+      <button id="analyzeBtn">Analyze Data</button>
+      <div id="uploadStatus"></div>
+    </div>
+
+    <div id="dashboard" class="dashboard">
+      <div class="card stat-card">
+        <h3>Overall Satisfaction</h3>
+        <div class="stat-value" id="avgRating">0.0</div>
+        <p>Average Rating</p>
+      </div>
+
+      <div class="card stat-card">
+        <h3>Total Feedback</h3>
+        <div class="stat-value" id="totalFeedback">0</div>
+        <p>Number of Responses</p>
+      </div>
+
+      <div class="card stat-card">
+        <h3>Satisfaction Score</h3>
+        <div class="stat-value" id="satisfactionScore">0%</div>
+        <p>Percentage of Positive Ratings</p>
+      </div>
+
+      <div class="card">
+        <h3>Rating Distribution</h3>
+        <div class="chart-container">
+          <canvas id="ratingChart"></canvas>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Recent Feedback</h3>
+        <div class="feedback-list" id="feedbackList">
+          <!-- Feedback items will be inserted here -->
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>Rating Trends</h3>
+        <div class="chart-container">
+          <canvas id="trendChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <a href="thank-you.html" class="back-link">← Back to Feedback Form</a>
+  </div>
+
+  <script>
+    document.getElementById('analyzeBtn').addEventListener('click', function() {
+      const fileInput = document.getElementById('fileInput');
+      const file = fileInput.files[0];
+      
+      if (!file) {
+        document.getElementById('uploadStatus').textContent = 'Please select a file first.';
+        document.getElementById('uploadStatus').style.color = '#ff6b6b';
+        return;
+      }
+
+      const reader = new FileReader();
+      
+      reader.onload = function(e) {
+        try {
+          const data = new Uint8Array(e.target.result);
+          const workbook = XLSX.read(data, { type: 'array' });
+          
+          // Assuming the first sheet contains the feedback data
+          const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+          const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+          
+          if (jsonData.length === 0) {
+            document.getElementById('uploadStatus').textContent = 'No data found in the Excel file.';
+            document.getElementById('uploadStatus').style.color = '#ff6b6b';
+            return;
+          }
+          
+          // Process the data and display results
+          processFeedbackData(jsonData);
+          document.getElementById('uploadStatus').textContent = 'Data analyzed successfully!';
+          document.getElementById('uploadStatus').style.color = '#40e0d0';
+          
+        } catch (error) {
+          console.error('Error reading Excel file:', error);
+          document.getElementById('uploadStatus').textContent = 'Error reading the Excel file. Please check the format.';
+          document.getElementById('uploadStatus').style.color = '#ff6b6b';
+        }
+      };
+      
+      reader.onerror = function() {
+        document.getElementById('uploadStatus').textContent = 'Error reading the file.';
+        document.getElementById('uploadStatus').style.color = '#ff6b6b';
+      };
+      
+      reader.readAsArrayBuffer(file);
+    });
+
+    function processFeedbackData(data) {
+      // Calculate metrics
+      const totalFeedback = data.length;
+      const ratings = data.map(item => parseInt(item.rating) || 0);
+      const avgRating = (ratings.reduce((sum, rating) => sum + rating, 0) / totalFeedback).toFixed(1);
+      
+      // Calculate satisfaction score (percentage of ratings 4 and 5)
+      const positiveRatings = ratings.filter(rating => rating >= 4).length;
+      const satisfactionScore = Math.round((positiveRatings / totalFeedback) * 100);
+      
+      // Count ratings by value
+      const ratingCounts = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0};
+      ratings.forEach(rating => {
+        if (ratingCounts[rating] !== undefined) {
+          ratingCounts[rating]++;
+        }
+      });
+      
+      // Update UI with calculated metrics
+      document.getElementById('avgRating').textContent = avgRating;
+      document.getElementById('totalFeedback').textContent = totalFeedback;
+      document.getElementById('satisfactionScore').textContent = satisfactionScore + '%';
+      
+      // Show the dashboard
+      document.getElementById('dashboard').style.display = 'grid';
+      
+      // Create charts
+      createRatingChart(ratingCounts);
+      createTrendChart(data);
+      
+      // Display recent feedback
+      displayRecentFeedback(data);
+    }
+
+    function createRatingChart(ratingCounts) {
+      const ctx = document.getElementById('ratingChart').getContext('2d');
+      
+      // Destroy existing chart if it exists
+      if (window.ratingChartInstance) {
+        window.ratingChartInstance.destroy();
+      }
+      
+      const ratingLabels = {
+        1: 'Bad 😞',
+        2: 'Poor 😕',
+        3: 'Average 😐',
+        4: 'Good 😊',
+        5: 'Excellent 😍'
+      };
+      
+      window.ratingChartInstance = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: Object.keys(ratingCounts).map(key => ratingLabels[key]),
+          datasets: [{
+            data: Object.values(ratingCounts),
+            backgroundColor: [
+              '#ff6b6b', // Bad
+              '#ffa726', // Poor
+              '#ffee58', // Average
+              '#66bb6a', // Good
+              '#42a5f5'  // Excellent
+            ],
+            borderWidth: 2,
+            borderColor: '#1a1a4a'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: {
+                color: 'white',
+                font: {
+                  size: 12
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    function createTrendChart(data) {
+      const ctx = document.getElementById('trendChart').getContext('2d');
+      
+      // Destroy existing chart if it exists
+      if (window.trendChartInstance) {
+        window.trendChartInstance.destroy();
+      }
+      
+      // Group data by date (simplified - in a real app you'd parse dates properly)
+      const dateGroups = {};
+      data.forEach(item => {
+        // Extract date part from timestamp (assuming format like "MM/DD/YYYY, HH:MM:SS AM/PM")
+        const datePart = item.timestamp ? item.timestamp.split(',')[0] : 'Unknown';
+        
+        if (!dateGroups[datePart]) {
+          dateGroups[datePart] = { total: 0, sum: 0, count: 0 };
+        }
+        
+        dateGroups[datePart].total += parseInt(item.rating);
+        dateGroups[datePart].count++;
+      });
+      
+      // Calculate average for each date
+      const dates = Object.keys(dateGroups);
+      const averages = dates.map(date => 
+        (dateGroups[date].total / dateGroups[date].count).toFixed(1)
+      );
+      
+      window.trendChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: dates,
+          datasets: [{
+            label: 'Average Rating',
+            data: averages,
+            borderColor: '#ff8c00',
+            backgroundColor: 'rgba(255, 140, 0, 0.1)',
+            borderWidth: 2,
+            fill: true,
+            tension: 0.4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              min: 1,
+              max: 5,
+              ticks: {
+                color: 'white'
+              },
+              grid: {
+                color: 'rgba(255, 255, 255, 0.1)'
+              }
+            },
+            x: {
+              ticks: {
+                color: 'white'
+              },
+              grid: {
+                color: 'rgba(255, 255, 255, 0.1)'
+              }
+            }
+          },
+          plugins: {
+            legend: {
+              labels: {
+                color: 'white'
+              }
+            }
+          }
+        }
+      });
+    }
+
+    function displayRecentFeedback(data) {
+      const feedbackList = document.getElementById('feedbackList');
+      feedbackList.innerHTML = '';
+      
+      // Sort by timestamp (newest first) - simplified
+      const sortedData = [...data].sort((a, b) => {
+        // In a real app, you'd parse the dates properly
+        return new Date(b.timestamp || 0) - new Date(a.timestamp || 0);
+      });
+      
+      // Show only the 10 most recent feedback items
+      const recentData = sortedData.slice(0, 10);
+      
+      if (recentData.length === 0) {
+        feedbackList.innerHTML = '<div class="no-data">No feedback data available</div>';
+        return;
+      }
+      
+      recentData.forEach(item => {
+        const feedbackItem = document.createElement('div');
+        feedbackItem.className = 'feedback-item';
+        
+        const stars = '★'.repeat(item.rating) + '☆'.repeat(5 - item.rating);
+        
+        feedbackItem.innerHTML = `
+          <div class="rating-stars">${stars}</div>
+          ${item.feedback ? `<div class="feedback-text">"${item.feedback}"</div>` : ''}
+          <div class="timestamp">${item.timestamp || 'Unknown date'}</div>
+        `;
+        
+        feedbackList.appendChild(feedbackItem);
+      });
+    }
+  </script>
+</body>
+</html>

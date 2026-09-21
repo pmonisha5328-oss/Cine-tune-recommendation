@@ -1,0 +1,1319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Movie Recommendations - CineTune</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+
+    body {
+      background: linear-gradient(135deg, #0c0c2e 0%, #1a1a4a 50%, #2d1b69 100%);
+      color: #fff;
+      min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding: 20px 40px;
+      position: relative;
+    }
+
+    .btn {
+      padding: 12px 25px;
+      border: none;
+      border-radius: 30px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.3s;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    .back-btn { background: linear-gradient(45deg, #ff416c, #ff4b2b); color: white; }
+    .exit-btn { 
+      background: linear-gradient(45deg, #00b4db, #0083b0); 
+      color: white; 
+      margin-bottom: 10px;
+    }
+    .history-btn {
+      background: linear-gradient(45deg, #9C27B0, #673AB7);
+      color: white;
+      margin-bottom: 10px;
+    }
+    .btn:hover { transform: translateY(-3px); }
+
+    .main-content { padding: 40px; max-width: 1200px; margin: auto; }
+
+    h1.page-title {
+      font-size: 2.5rem;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 10px;
+      background: linear-gradient(45deg, #ff0080, #ff8c00, #40e0d0);
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+
+    .mood-indicator {
+      text-align: center;
+      font-size: 1.2rem;
+      color: #ff8c00;
+      margin-bottom: 20px;
+    }
+
+    .page-subtitle { text-align: center; color: #ccc; margin-bottom: 40px; }
+
+    /* Filters */
+    .filter-container {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-bottom: 40px;
+      position: relative;
+    }
+
+    .filter-select, .search-input {
+      padding: 12px 20px;
+      border-radius: 25px;
+      border: none;
+      outline: none;
+      background: rgba(255, 255, 255, 0.15);
+      color: white;
+      font-size: 1rem;
+      backdrop-filter: blur(10px);
+    }
+
+    option { background: #1a1a4a; color: white; }
+    .search-input::placeholder { color: rgba(255, 255, 255, 0.7); }
+
+    .search-button {
+      padding: 12px 25px;
+      border: none;
+      border-radius: 25px;
+      background: linear-gradient(45deg, #ff0080, #ff8c00);
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .search-button:hover { transform: scale(1.05); }
+
+    /* Header Right */
+    .header-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 10px;
+    }
+
+    .header-icons {
+      display: flex;
+      gap: 15px;
+    }
+
+    .filter-icon, .history-icon {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: 0.3s;
+      backdrop-filter: blur(10px);
+    }
+
+    .filter-icon:hover, .history-icon:hover {
+      background: rgba(255, 255, 255, 0.25);
+      transform: scale(1.05);
+    }
+
+    .filter-icon svg, .history-icon svg {
+      width: 24px;
+      height: 24px;
+      fill: white;
+    }
+
+    /* Filter Dropdown */
+    .filter-dropdown {
+      position: absolute;
+      right: 40px;
+      top: 140px;
+      background: rgba(26, 26, 74, 0.95);
+      border-radius: 15px;
+      padding: 20px;
+      width: 250px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(10px);
+      z-index: 10;
+      display: none;
+    }
+
+    .filter-dropdown.active {
+      display: block;
+    }
+
+    .filter-group {
+      margin-bottom: 20px;
+    }
+
+    .filter-group h3 {
+      font-size: 1rem;
+      margin-bottom: 10px;
+      color: #ff8c00;
+    }
+
+    .filter-options {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .filter-option {
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      padding: 8px 12px;
+      border-radius: 8px;
+      transition: 0.2s;
+    }
+
+    .filter-option:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .filter-option input {
+      margin-right: 10px;
+    }
+
+    .filter-option label {
+      cursor: pointer;
+    }
+
+    .apply-filters-btn {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 25px;
+      background: linear-gradient(45deg, #ff0080, #ff8c00);
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .apply-filters-btn:hover {
+      transform: translateY(-2px);
+    }
+
+    /* Movie Grid */
+    .movies-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 30px;
+    }
+
+    .movie-card {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 15px;
+      overflow: hidden;
+      padding: 15px;
+      text-align: center;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+      transition: 0.3s;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .movie-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    .movie-img {
+      width: 100%;
+      height: 300px;
+      object-fit: cover;
+      border-radius: 10px;
+      margin-bottom: 10px;
+    }
+
+    .movie-title {
+      font-size: 1rem;
+      color: #fff;
+      font-weight: 600;
+      margin-bottom: 6px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .movie-info { font-size: 0.9rem; color: #ff8c00; margin-bottom: 4px; }
+    .movie-lang { font-size: 0.8rem; color: #40e0d0; }
+    .star { color: #ffc107; }
+    
+    .movie-platforms {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+    
+    .platform-btn {
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      border-radius: 20px;
+      padding: 6px 12px;
+      color: white;
+      font-size: 0.7rem;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    
+    .platform-btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: scale(1.05);
+    }
+    
+    .netflix-btn { background: linear-gradient(45deg, #E50914, #B20710); }
+    .hotstar-btn { background: linear-gradient(45deg, #04009a, #1f5f82); }
+    .amazon-btn { background: linear-gradient(45deg, #00A8E1, #007EB0); }
+    
+    .viewed-badge {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: linear-gradient(45deg, #9C27B0, #673AB7);
+      color: white;
+      font-size: 0.7rem;
+      padding: 4px 8px;
+      border-radius: 10px;
+      font-weight: 600;
+    }
+
+    /* Movie Detail Modal */
+    .movie-modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .movie-modal-overlay.active {
+      display: flex;
+    }
+
+    .movie-modal {
+      background: linear-gradient(135deg, #1a1a4a 0%, #2d1b69 100%);
+      border-radius: 15px;
+      width: 90%;
+      max-width: 500px;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 25px;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+      position: relative;
+    }
+
+    .movie-modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 20px;
+    }
+
+    .movie-modal-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #ff8c00;
+      margin-right: 20px;
+    }
+
+    .close-modal {
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      color: white;
+      font-size: 1.5rem;
+      width: 35px;
+      height: 35px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: 0.3s;
+    }
+
+    .close-modal:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: scale(1.1);
+    }
+
+    .movie-modal-img {
+      width: 100%;
+      height: 300px;
+      object-fit: cover;
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
+
+    .movie-modal-details {
+      display: grid;
+      gap: 12px;
+    }
+
+    .movie-detail-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .detail-label {
+      font-weight: 600;
+      color: #ff8c00;
+    }
+
+    .detail-value {
+      color: #fff;
+      text-align: right;
+    }
+
+    .movie-description {
+      margin-top: 15px;
+      line-height: 1.5;
+      color: #ddd;
+      font-style: italic;
+    }
+
+    .movie-platforms-modal {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    
+    .platform-btn-modal {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 25px;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .platform-btn-modal:hover {
+      transform: translateY(-3px);
+    }
+    
+    .netflix-btn-modal { 
+      background: linear-gradient(45deg, #E50914, #B20710); 
+    }
+    
+    .hotstar-btn-modal { 
+      background: linear-gradient(45deg, #04009a, #1f5f82); 
+    }
+    
+    .amazon-btn-modal { 
+      background: linear-gradient(45deg, #00A8E1, #007EB0); 
+    }
+
+    /* History Modal */
+    .history-modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .history-modal-overlay.active {
+      display: flex;
+    }
+
+    .history-modal {
+      background: linear-gradient(135deg, #1a1a4a 0%, #2d1b69 100%);
+      border-radius: 15px;
+      width: 90%;
+      max-width: 800px;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 25px;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+      position: relative;
+    }
+
+    .history-modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .history-modal-title {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #9C27B0;
+    }
+
+    .clear-history-btn {
+      background: linear-gradient(45deg, #ff416c, #ff4b2b);
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .clear-history-btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .history-list {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .history-item {
+      display: flex;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      padding: 15px;
+      align-items: center;
+      gap: 15px;
+      transition: 0.3s;
+      cursor: pointer;
+    }
+
+    .history-item:hover {
+      background: rgba(255, 255, 255, 0.15);
+      transform: translateX(5px);
+    }
+
+    .history-item-img {
+      width: 80px;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 8px;
+    }
+
+    .history-item-details {
+      flex: 1;
+    }
+
+    .history-item-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 5px;
+    }
+
+    .history-item-info {
+      font-size: 0.9rem;
+      color: #ff8c00;
+      margin-bottom: 3px;
+    }
+
+    .history-item-date {
+      font-size: 0.8rem;
+      color: #40e0d0;
+    }
+
+    .empty-history {
+      text-align: center;
+      padding: 40px;
+      color: #ccc;
+      font-style: italic;
+    }
+
+  </style>
+</head>
+
+<body>
+  <header>
+    <button class="btn back-btn" onclick="window.location.href='mood-selection.html'">Back</button>
+    <div class="header-right">
+      <button class="btn exit-btn" onclick="window.location.href='thank-you.html'">Exit</button>
+      <button class="btn history-btn" id="viewHistoryBtn">View History</button>
+      
+      <div class="header-icons">
+        <!-- Filter Icon -->
+        <div class="filter-icon" id="filterIcon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M10 18h4v-2h-4v2zM3 6v2h18V6H3zm3 7h12v-2H6v2z"/>
+          </svg>
+        </div>
+
+        <!-- History Icon -->
+        <div class="history-icon" id="historyIcon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Filter Dropdown -->
+    <div class="filter-dropdown" id="filterDropdown">
+      <div class="filter-group">
+        <h3>Sort by Release Date</h3>
+        <div class="filter-options">
+          <div class="filter-option">
+            <input type="radio" id="newest" name="releaseDate" value="newest">
+            <label for="newest">Newest First</label>
+          </div>
+          <div class="filter-option">
+            <input type="radio" id="oldest" name="releaseDate" value="oldest">
+            <label for="oldest">Oldest First</label>
+          </div>
+        </div>
+      </div>
+      
+      <div class="filter-group">
+        <h3>Sort by Rating</h3>
+        <div class="filter-options">
+          <div class="filter-option">
+            <input type="radio" id="highest" name="rating" value="highest">
+            <label for="highest">Highest Rated</label>
+          </div>
+          <div class="filter-option">
+            <input type="radio" id="lowest" name="rating" value="lowest">
+            <label for="lowest">Lowest Rated</label>
+          </div>
+        </div>
+      </div>
+      
+      <button class="apply-filters-btn" id="applyFiltersBtn">Apply Filters</button>
+    </div>
+  </header>
+
+  <div class="main-content">
+    <h1 class="page-title">Movie Recommendations</h1>
+    <div class="mood-indicator" id="moodIndicator">All Movie Recommendations</div>
+    <p class="page-subtitle">Filter by language or search your favorite movies</p>
+
+    <!-- Filters -->
+    <div class="filter-container">
+      <select id="languageFilter" class="filter-select">
+        <option value="">All Languages</option>
+        <option value="Kannada">Kannada</option>
+        <option value="Tamil">Tamil</option>
+        <option value="Telugu">Telugu</option>
+        <option value="Malayalam">Malayalam</option>
+        <option value="Hindi">Hindi</option>
+        <option value="English">English</option>
+      </select>
+
+      <input type="text" id="searchBox" class="search-input" placeholder="Search by movie name..." />
+      <button class="search-button" id="searchBtn">Search</button>
+    </div>
+
+    <!-- Movie Grid -->
+    <div class="movies-grid" id="moviesGrid">
+      <p style="text-align:center;color:#ff8c00;">Loading movies...</p>
+    </div>
+  </div>
+
+  <!-- Movie Detail Modal -->
+  <div class="movie-modal-overlay" id="movieModal">
+    <div class="movie-modal">
+      <div class="movie-modal-header">
+        <h2 class="movie-modal-title" id="modalMovieTitle">Movie Title</h2>
+        <button class="close-modal" onclick="closeMovieModal()">&times;</button>
+      </div>
+      
+      <img id="modalMovieImage" src="" alt="Movie Poster" class="movie-modal-img">
+      
+      <div class="movie-modal-details">
+        <div class="movie-detail-item">
+          <span class="detail-label">Genre:</span>
+          <span class="detail-value" id="modalGenre">-</span>
+        </div>
+        <div class="movie-detail-item">
+          <span class="detail-label">Year:</span>
+          <span class="detail-value" id="modalYear">-</span>
+        </div>
+        <div class="movie-detail-item">
+          <span class="detail-label">Language:</span>
+          <span class="detail-value" id="modalLanguage">-</span>
+        </div>
+        <div class="movie-detail-item">
+          <span class="detail-label">Rating:</span>
+          <span class="detail-value" id="modalRating">-</span>
+        </div>
+        <div class="movie-detail-item">
+          <span class="detail-label">Mood:</span>
+          <span class="detail-value" id="modalMood">-</span>
+        </div>
+        <div class="movie-detail-item">
+          <span class="detail-label">Director:</span>
+          <span class="detail-value" id="modalDirector">-</span>
+        </div>
+        <div class="movie-detail-item">
+          <span class="detail-label">Cast:</span>
+          <span class="detail-value" id="modalCast">-</span>
+        </div>
+      </div>
+      
+      <div class="movie-platforms-modal">
+        <button class="platform-btn-modal netflix-btn-modal" id="modalNetflixBtn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="white">
+            <path d="M5.398 0v.006c3.028 8.556 5.37 15.175 8.348 23.596 2.344.058 4.85.398 4.854.398-2.8-7.924-5.923-16.747-8.487-24zm8.489 0v9.63L18.6 22.951c-.043-7.86-.004-15.913.012-22.95zM5.398 1.05V24c1.873-.225 2.81-.312 4.715-.398v-9.22z"/>
+          </svg>
+          Netflix
+        </button>
+        <button class="platform-btn-modal hotstar-btn-modal" id="modalHotstarBtn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="white">
+            <path d="M10.115 3.316L12 5.201l1.885-1.885a3.99 3.99 0 0 1 5.658 5.658L12 16.517l-7.543-7.543a3.99 3.99 0 0 1 5.658-5.658z"/>
+          </svg>
+          Hotstar
+        </button>
+        <button class="platform-btn-modal amazon-btn-modal" id="modalAmazonBtn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="white">
+            <path d="M10.922 16.616c0 .566-.452 1.022-1.018 1.022-.565 0-1.017-.456-1.017-1.022s.452-1.022 1.017-1.022c.566 0 1.018.456 1.018 1.022zM12.126 12.126c0 .566-.452 1.022-1.018 1.022-.565 0-1.017-.456-1.017-1.022s.452-1.022 1.017-1.022c.566 0 1.018.456 1.018 1.022zM14.334 7.636c0 .566-.452 1.022-1.018 1.022-.565 0-1.017-.456-1.017-1.022s.452-1.022 1.017-1.022c.566 0 1.018.456 1.018 1.022z"/>
+          </svg>
+          Amazon Prime
+        </button>
+      </div>
+      
+      <div class="movie-description" id="modalDescription">
+        Detailed description not available at the moment.
+      </div>
+    </div>
+  </div>
+
+  <!-- History Modal -->
+  <div class="history-modal-overlay" id="historyModal">
+    <div class="history-modal">
+      <div class="history-modal-header">
+        <h2 class="history-modal-title">Your Movie History</h2>
+        <button class="clear-history-btn" id="clearHistoryBtn">Clear History</button>
+      </div>
+      
+      <div class="history-list" id="historyList">
+        <!-- History items will be populated here -->
+      </div>
+      
+      <button class="close-modal" onclick="closeHistoryModal()" style="margin-top: 20px; width: 100%;">&times; Close</button>
+    </div>
+  </div>
+
+  <script>
+    let allMovies = [];
+    let currentFilters = {
+      language: '',
+      search: '',
+      releaseDate: '',
+      rating: ''
+    };
+
+    // Initialize movie history from localStorage
+    function initializeMovieHistory() {
+      if (!localStorage.getItem('movieHistory')) {
+        localStorage.setItem('movieHistory', JSON.stringify([]));
+      }
+    }
+
+    // Add movie to history
+    function addToMovieHistory(movie) {
+      const history = JSON.parse(localStorage.getItem('movieHistory'));
+      
+      // Check if movie already exists in history
+      const existingIndex = history.findIndex(item => item.title === movie.title);
+      
+      if (existingIndex !== -1) {
+        // Update the timestamp if already exists
+        history[existingIndex].viewedAt = new Date().toISOString();
+      } else {
+        // Add new movie to history
+        const historyItem = {
+          ...movie,
+          viewedAt: new Date().toISOString()
+        };
+        history.unshift(historyItem); // Add to beginning of array
+      }
+      
+      // Limit history to 50 items
+      if (history.length > 50) {
+        history.splice(50);
+      }
+      
+      localStorage.setItem('movieHistory', JSON.stringify(history));
+      updateViewedBadges();
+    }
+
+    // Get movie history
+    function getMovieHistory() {
+      return JSON.parse(localStorage.getItem('movieHistory') || '[]');
+    }
+
+    // Clear movie history
+    function clearMovieHistory() {
+      localStorage.setItem('movieHistory', JSON.stringify([]));
+      updateViewedBadges();
+      displayHistory();
+    }
+
+    // Update viewed badges on movie cards
+    function updateViewedBadges() {
+      const history = getMovieHistory();
+      const movieCards = document.querySelectorAll('.movie-card');
+      
+      movieCards.forEach(card => {
+        const title = card.querySelector('.movie-title').textContent;
+        const existingBadge = card.querySelector('.viewed-badge');
+        
+        // Remove existing badge
+        if (existingBadge) {
+          existingBadge.remove();
+        }
+        
+        // Add badge if movie is in history
+        if (history.some(item => item.title === title)) {
+          const badge = document.createElement('div');
+          badge.className = 'viewed-badge';
+          badge.textContent = 'Viewed';
+          card.appendChild(badge);
+        }
+      });
+    }
+
+    // Display history in the history modal
+    function displayHistory() {
+      const historyList = document.getElementById('historyList');
+      const history = getMovieHistory();
+      
+      if (history.length === 0) {
+        historyList.innerHTML = '<div class="empty-history">No movies viewed yet. Start exploring!</div>';
+        return;
+      }
+      
+      historyList.innerHTML = history.map(movie => `
+        <div class="history-item" data-movie-title="${movie.title}">
+          <img src="${movie.image_url}" alt="${movie.title}" class="history-item-img" 
+               onerror="this.src='https://via.placeholder.com/300'">
+          <div class="history-item-details">
+            <div class="history-item-title">${movie.title}</div>
+            <div class="history-item-info">${movie.genre} | ${movie.year} | ${movie.language}</div>
+            <div class="history-item-info">${movie.mood} | ${getMoviePlatform(movie)}</div>
+            <div class="history-item-date">Viewed: ${new Date(movie.viewedAt).toLocaleString()}</div>
+          </div>
+        </div>
+      `).join('');
+      
+      // Add click event to history items
+      document.querySelectorAll('.history-item').forEach(item => {
+        item.addEventListener('click', function() {
+          const movieTitle = this.getAttribute('data-movie-title');
+          const movie = history.find(m => m.title === movieTitle);
+          if (movie) {
+            closeHistoryModal();
+            openMovieModal(movie);
+          }
+        });
+      });
+    }
+
+    // Helper function to get movie platform from various possible property names
+    function getMoviePlatform(movie) {
+      return movie.movie_platform || movie.platform || movie.streaming_platform || 'Not specified';
+    }
+
+    // Helper function to check if movie is available on Netflix
+    function isOnNetflix(movie) {
+      const platform = getMoviePlatform(movie).toLowerCase();
+      return platform.includes('netflix') || 
+             movie.netflix_url || 
+             movie.netflix_available ||
+             (movie.streaming_platforms && movie.streaming_platforms.includes('Netflix'));
+    }
+
+    // Helper function to check if movie is available on Hotstar
+    function isOnHotstar(movie) {
+      const platform = getMoviePlatform(movie).toLowerCase();
+      return platform.includes('hotstar') || 
+             movie.hotstar_url || 
+             movie.hotstar_available ||
+             (movie.streaming_platforms && movie.streaming_platforms.includes('Hotstar'));
+    }
+
+    // Helper function to check if movie is available on Amazon Prime
+    function isOnAmazonPrime(movie) {
+      const platform = getMoviePlatform(movie).toLowerCase();
+      return platform.includes('amazon') || 
+             platform.includes('prime') ||
+             movie.amazon_prime_url || 
+             movie.amazon_url ||
+             movie.prime_available ||
+             (movie.streaming_platforms && movie.streaming_platforms.includes('Amazon Prime'));
+    }
+
+    // Helper function to get Netflix URL
+    function getNetflixUrl(movie) {
+      return movie.netflix_url || 
+             movie.netflix_link || 
+             (isOnNetflix(movie) ? `https://www.netflix.com/search?q=${encodeURIComponent(movie.title)}` : null);
+    }
+
+    // Helper function to get Hotstar URL
+    function getHotstarUrl(movie) {
+      return movie.hotstar_url || 
+             movie.hotstar_link || 
+             (isOnHotstar(movie) ? `https://www.hotstar.com/in/search?q=${encodeURIComponent(movie.title)}` : null);
+    }
+
+    // Helper function to get Amazon Prime URL
+    function getAmazonPrimeUrl(movie) {
+      return movie.amazon_prime_url || 
+             movie.amazon_url || 
+             movie.prime_url ||
+             (isOnAmazonPrime(movie) ? `https://www.primevideo.com/search/ref=atv_nb_sr?phrase=${encodeURIComponent(movie.title)}` : null);
+    }
+
+    function openMovieModal(movie) {
+      console.log("🎬 Opening modal for:", movie.title);
+      
+      // Add to history when modal opens
+      addToMovieHistory(movie);
+      
+      const modal = document.getElementById('movieModal');
+      if (!modal) {
+        console.error("❌ Modal element not found!");
+        return;
+      }
+      
+      // Populate modal with movie data
+      document.getElementById('modalMovieTitle').textContent = movie.title || 'Unknown Title';
+      document.getElementById('modalMovieImage').src = movie.image_url || 'https://via.placeholder.com/300';
+      document.getElementById('modalMovieImage').alt = movie.title || 'Movie Poster';
+      document.getElementById('modalGenre').textContent = movie.genre || 'Not available';
+      document.getElementById('modalYear').textContent = movie.year || 'Not available';
+      document.getElementById('modalLanguage').textContent = movie.language || 'Not available';
+      document.getElementById('modalRating').textContent = movie.rating ? `${movie.rating} ⭐` : 'Not rated';
+      document.getElementById('modalMood').textContent = movie.mood || 'Not specified';
+      document.getElementById('modalDirector').textContent = movie.director || 'Information not available';
+      document.getElementById('modalCast').textContent = movie.cast || 'Information not available';
+      document.getElementById('modalDescription').textContent = movie.description || 'Detailed description not available at the moment.';
+      
+      // Set up platform buttons
+      const netflixBtn = document.getElementById('modalNetflixBtn');
+      const hotstarBtn = document.getElementById('modalHotstarBtn');
+      const amazonBtn = document.getElementById('modalAmazonBtn');
+      
+      const netflixUrl = getNetflixUrl(movie);
+      const hotstarUrl = getHotstarUrl(movie);
+      const amazonUrl = getAmazonPrimeUrl(movie);
+      
+      if (netflixUrl) {
+        netflixBtn.onclick = () => {
+          console.log("Redirecting to Netflix:", netflixUrl);
+          window.open(netflixUrl, '_blank');
+        };
+        netflixBtn.style.display = 'flex';
+      } else {
+        netflixBtn.style.display = 'none';
+      }
+      
+      if (hotstarUrl) {
+        hotstarBtn.onclick = () => {
+          console.log("Redirecting to Hotstar:", hotstarUrl);
+          window.open(hotstarUrl, '_blank');
+        };
+        hotstarBtn.style.display = 'flex';
+      } else {
+        hotstarBtn.style.display = 'none';
+      }
+      
+      if (amazonUrl) {
+        amazonBtn.onclick = () => {
+          console.log("Redirecting to Amazon Prime:", amazonUrl);
+          window.open(amazonUrl, '_blank');
+        };
+        amazonBtn.style.display = 'flex';
+      } else {
+        amazonBtn.style.display = 'none';
+      }
+      
+      // Show modal
+      modal.classList.add('active');
+      console.log("✅ Modal should be visible now");
+    }
+
+    function closeMovieModal() {
+      const modal = document.getElementById('movieModal');
+      if (modal) {
+        modal.classList.remove('active');
+      }
+    }
+
+    function openHistoryModal() {
+      displayHistory();
+      document.getElementById('historyModal').classList.add('active');
+    }
+
+    function closeHistoryModal() {
+      document.getElementById('historyModal').classList.remove('active');
+    }
+
+    // Close modals when clicking outside
+    document.getElementById('movieModal').addEventListener('click', function(e) {
+      if (e.target === this) {
+        closeMovieModal();
+      }
+    });
+
+    document.getElementById('historyModal').addEventListener('click', function(e) {
+      if (e.target === this) {
+        closeHistoryModal();
+      }
+    });
+
+    // Close modals with Escape key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        closeMovieModal();
+        closeHistoryModal();
+      }
+    });
+
+    // Handle platform button clicks in movie cards
+    function handlePlatformButtonClick(url, platform) {
+      console.log(`Redirecting to ${platform}:`, url);
+      if (url) {
+        window.open(url, '_blank');
+      } else {
+        console.warn(`No ${platform} URL available`);
+        // Optionally show a message to the user
+        alert(`This movie might be available on ${platform}. Please search for "${platform}" to find it.`);
+      }
+    }
+
+    async function loadMovieRecommendations() {
+      const mood = (localStorage.getItem("selectedMood") || "").toLowerCase();
+      console.log("Requested mood:", mood);
+      
+      document.getElementById("moodIndicator").textContent =
+        mood ? `Movies for mood: ${mood}` : "All Movie Recommendations";
+
+      try {
+        const res = await fetch("http://127.0.0.1:5000/recommend/movies", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ mood: mood.toLowerCase() })
+        });
+        const data = await res.json();
+        console.log("Movies received:", data);
+        
+        allMovies = data;
+        displayMovies(allMovies);
+      } catch (error) {
+        console.error("Error fetching movies:", error);
+        // Show test movies if backend fails
+        showTestMovies();
+      }
+    }
+
+    function showTestMovies() {
+      const testMovies = [
+        {
+          title: "The Shawshank Redemption",
+          image_url: "https://via.placeholder.com/300",
+          genre: "Drama",
+          year: "1994",
+          language: "English",
+          rating: "9.3",
+          movie_platform: "Netflix",
+          mood: "motivated",
+          director: "Frank Darabont",
+          cast: "Tim Robbins, Morgan Freeman",
+          description: "Two imprisoned men bond over a number of years.",
+          netflix_url: "https://www.netflix.com/title/70005379",
+          hotstar_url: "",
+          amazon_prime_url: ""
+        },
+        {
+          title: "The Dark Knight",
+          image_url: "https://via.placeholder.com/300",
+          genre: "Action",
+          year: "2008",
+          language: "English",
+          rating: "9.0",
+          movie_platform: "Netflix, Amazon Prime",
+          mood: "motivated",
+          director: "Christopher Nolan",
+          cast: "Christian Bale, Heath Ledger",
+          description: "Batman faces the Joker in Gotham City.",
+          netflix_url: "https://www.netflix.com/title/70079583",
+          hotstar_url: "",
+          amazon_prime_url: "https://www.primevideo.com/detail/The-Dark-Knight/0L3QZHFZJQZ1C"
+        },
+        {
+          title: "Inception",
+          image_url: "https://via.placeholder.com/300",
+          genre: "Sci-Fi",
+          year: "2010",
+          language: "English",
+          rating: "8.8",
+          movie_platform: "Amazon Prime, Hotstar",
+          mood: "curious",
+          director: "Christopher Nolan",
+          cast: "Leonardo DiCaprio, Joseph Gordon-Levitt",
+          description: "A thief who steals corporate secrets through dream-sharing technology.",
+          netflix_url: "",
+          hotstar_url: "https://www.hotstar.com/in/movies/inception/1260018359",
+          amazon_prime_url: "https://www.primevideo.com/detail/Inception/0L3QZHFZJQZ1C"
+        },
+        {
+          title: "3 Idiots",
+          image_url: "https://via.placeholder.com/300",
+          genre: "Comedy-Drama",
+          year: "2009",
+          language: "Hindi",
+          rating: "8.4",
+          movie_platform: "Netflix, Hotstar",
+          mood: "motivated",
+          director: "Rajkumar Hirani",
+          cast: "Aamir Khan, R Madhavan, Sharman Joshi",
+          description: "Two friends are searching for their long-lost companion.",
+          netflix_url: "https://www.netflix.com/title/70125501",
+          hotstar_url: "https://www.hotstar.com/in/movies/3-idiots/1260018347",
+          amazon_prime_url: ""
+        },
+        {
+          title: "RRR",
+          image_url: "https://via.placeholder.com/300",
+          genre: "Action",
+          year: "2022",
+          language: "Telugu",
+          rating: "8.0",
+          movie_platform: "Netflix",
+          mood: "motivated",
+          director: "S.S. Rajamouli",
+          cast: "N.T. Rama Rao Jr., Ram Charan",
+          description: "In 1920s India two revolutionaries fight against the British Raj.",
+          netflix_url: "https://www.netflix.com/title/81300543",
+          hotstar_url: "",
+          amazon_prime_url: ""
+        },
+        {
+          title: "Kantara",
+          image_url: "https://via.placeholder.com/300",
+          genre: "Action",
+          year: "2022",
+          language: "Kannada",
+          rating: "8.3",
+          movie_platform: "Amazon Prime",
+          mood: "motivated",
+          director: "Rishab Shetty",
+          cast: "Rishab Shetty, Sapthami Gowda",
+          description: "A local deity protects villagers from evil forces.",
+          netflix_url: "",
+          hotstar_url: "",
+          amazon_prime_url: "https://www.primevideo.com/detail/Kantara/0L3QZHFZJQZ1C"
+        }
+      ];
+      
+      allMovies = testMovies;
+      displayMovies(testMovies);
+    }
+
+    function displayMovies(movies) {
+      const grid = document.getElementById("moviesGrid");
+      grid.innerHTML = "";
+
+      if (movies.length === 0) {
+        grid.innerHTML = `<p style="text-align:center;color:#ff8c00;">No movies found for selected filters.</p>`;
+        return;
+      }
+
+      movies.forEach(movie => {
+        const movieCard = document.createElement('div');
+        movieCard.className = 'movie-card';
+        
+        const netflixAvailable = isOnNetflix(movie);
+        const hotstarAvailable = isOnHotstar(movie);
+        const amazonAvailable = isOnAmazonPrime(movie);
+        const netflixUrl = getNetflixUrl(movie);
+        const hotstarUrl = getHotstarUrl(movie);
+        const amazonUrl = getAmazonPrimeUrl(movie);
+        
+        movieCard.innerHTML = `
+          <img src="${movie.image_url}" 
+               alt="${movie.title}" 
+               class="movie-img"
+               onerror="this.src='https://upload.wikimedia.org/wikipedia/commons/a/ac/No_image_available.svg';"> 
+          <h3 class="movie-title" title="${movie.title}">${movie.title}</h3>
+          <div class="movie-info">${movie.genre} | ${movie.year} | ${movie.mood}</div>
+          <div class="movie-lang">${movie.language}</div>
+          <div><span class="star">⭐</span> ${movie.rating || "4.0"}</div>
+          <div class="movie-platforms">
+            ${netflixAvailable ? `<button class="platform-btn netflix-btn" data-url="${netflixUrl}" data-platform="Netflix">Netflix</button>` : ''}
+            ${hotstarAvailable ? `<button class="platform-btn hotstar-btn" data-url="${hotstarUrl}" data-platform="Hotstar">Hotstar</button>` : ''}
+            ${amazonAvailable ? `<button class="platform-btn amazon-btn" data-url="${amazonUrl}" data-platform="Amazon Prime">Amazon</button>` : ''}
+          </div>
+        `;
+        
+        // Add click event for the entire card
+        movieCard.addEventListener('click', function(e) {
+          // Don't open modal if platform button was clicked
+          if (!e.target.classList.contains('platform-btn')) {
+            console.log("🎬 Clicked movie:", movie.title);
+            openMovieModal(movie);
+          }
+        });
+        
+        // Add click events for platform buttons
+        const netflixBtn = movieCard.querySelector('.netflix-btn');
+        const hotstarBtn = movieCard.querySelector('.hotstar-btn');
+        const amazonBtn = movieCard.querySelector('.amazon-btn');
+        
+        if (netflixBtn) {
+          netflixBtn.addEventListener('click', function(e) {
+            e.stopPropagation(); // Prevent card click event
+            handlePlatformButtonClick(this.getAttribute('data-url'), 'Netflix');
+          });
+        }
+        
+        if (hotstarBtn) {
+          hotstarBtn.addEventListener('click', function(e) {
+            e.stopPropagation(); // Prevent card click event
+            handlePlatformButtonClick(this.getAttribute('data-url'), 'Hotstar');
+          });
+        }
+        
+        if (amazonBtn) {
+          amazonBtn.addEventListener('click', function(e) {
+            e.stopPropagation(); // Prevent card click event
+            handlePlatformButtonClick(this.getAttribute('data-url'), 'Amazon Prime');
+          });
+        }
+        
+        grid.appendChild(movieCard);
+      });
+      
+      // Update viewed badges after movies are displayed
+      updateViewedBadges();
+    }
+
+    function applyFilters() {
+      const lang = document.getElementById("languageFilter").value.toLowerCase();
+      const search = document.getElementById("searchBox").value.toLowerCase();
+      
+      currentFilters.language = lang;
+      currentFilters.search = search;
+
+      let filtered = allMovies.filter(m =>
+        (currentFilters.language === "" || (m.language && m.language.toLowerCase() === currentFilters.language)) &&
+        (currentFilters.search === "" || (m.title && m.title.toLowerCase().includes(currentFilters.search)))
+      );
+
+      // Apply sorting
+      if (currentFilters.releaseDate === 'newest') {
+        filtered = filtered.sort((a, b) => (b.year || 0) - (a.year || 0));
+      } else if (currentFilters.releaseDate === 'oldest') {
+        filtered = filtered.sort((a, b) => (a.year || 0) - (b.year || 0));
+      }
+
+      if (currentFilters.rating === 'highest') {
+        filtered = filtered.sort((a, b) => (parseFloat(b.rating) || 0) - (parseFloat(a.rating) || 0));
+      } else if (currentFilters.rating === 'lowest') {
+        filtered = filtered.sort((a, b) => (parseFloat(a.rating) || 0) - (parseFloat(b.rating) || 0));
+      }
+
+      displayMovies(filtered);
+    }
+
+    function setupFilterDropdown() {
+      const filterIcon = document.getElementById('filterIcon');
+      const filterDropdown = document.getElementById('filterDropdown');
+      const applyFiltersBtn = document.getElementById('applyFiltersBtn');
+      
+      filterIcon.addEventListener('click', () => {
+        filterDropdown.classList.toggle('active');
+      });
+      
+      document.addEventListener('click', (e) => {
+        if (!filterDropdown.contains(e.target) && !filterIcon.contains(e.target)) {
+          filterDropdown.classList.remove('active');
+        }
+      });
+      
+      applyFiltersBtn.addEventListener('click', () => {
+        const releaseDateRadios = document.getElementsByName('releaseDate');
+        for (const radio of releaseDateRadios) {
+          if (radio.checked) {
+            currentFilters.releaseDate = radio.value;
+            break;
+          }
+        }
+        
+        const ratingRadios = document.getElementsByName('rating');
+        for (const radio of ratingRadios) {
+          if (radio.checked) {
+            currentFilters.rating = radio.value;
+            break;
+          }
+        }
+        
+        applyFilters();
+        filterDropdown.classList.remove('active');
+      });
+    }
+
+    function setupHistoryModal() {
+      const historyIcon = document.getElementById('historyIcon');
+      const viewHistoryBtn = document.getElementById('viewHistoryBtn');
+      const clearHistoryBtn = document.getElementById('clearHistoryBtn');
+      
+      historyIcon.addEventListener('click', openHistoryModal);
+      viewHistoryBtn.addEventListener('click', openHistoryModal);
+      clearHistoryBtn.addEventListener('click', () => {
+        if (confirm('Are you sure you want to clear your viewing history?')) {
+          clearMovieHistory();
+        }
+      });
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      initializeMovieHistory();
+      loadMovieRecommendations();
+      setupFilterDropdown();
+      setupHistoryModal();
+      
+      document.getElementById("searchBtn").addEventListener("click", applyFilters);
+      document.getElementById("languageFilter").addEventListener("change", applyFilters);
+      document.getElementById("searchBox").addEventListener("keypress", (e) => {
+        if (e.key === "Enter") applyFilters();
+      });
+    });
+  </script>
+
+</body>
+</html>

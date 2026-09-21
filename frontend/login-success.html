@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Successful - CineTune</title>
+    <meta http-equiv="refresh" content="5;url=mood-selection.html">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0c0c2e 0%, #1a1a4a 50%, #2d1b69 100%);
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .success-popup {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            max-width: 450px;
+            width: 90%;
+            position: relative;
+            z-index: 10;
+        }
+
+        .success-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .success-title {
+            font-size: 2.2rem;
+            margin-bottom: 15px;
+            background: linear-gradient(45deg, #ff0080, #ff8c00, #40e0d0);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .success-message {
+            font-size: 1.2rem;
+            color: #e0e0e0;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+
+        .redirect-info {
+            font-size: 1rem;
+            color: #b0b0b0;
+            margin-bottom: 10px;
+        }
+
+        .countdown {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #ff8c00;
+            margin-bottom: 20px;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 1.5rem;
+            cursor: pointer;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+        }
+
+        .manual-link {
+            display: inline-block;
+            margin-top: 15px;
+            padding: 8px 20px;
+            background: linear-gradient(45deg, #ff0080, #ff8c00);
+            color: white;
+            text-decoration: none;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="success-popup">
+        <a href="mood-selection.html" class="close-btn">×</a>
+        
+        <span class="success-icon">✅</span>
+        <h1 class="success-title">Login Successful!</h1>
+        <p class="success-message">You have successfully logged into your CineTune account. Enjoy browsing the app!</p>
+        
+        <p class="redirect-info">Redirecting to mood selection in</p>
+        <div class="countdown">5 seconds</div>
+        
+        <a href="mood-selection.html" class="manual-link">Click here to go now</a>
+    </div>
+
+    <script>
+        let countdown = 5;
+        const countdownElement = document.querySelector('.countdown');
+        
+        const timer = setInterval(() => {
+            countdown--;
+            countdownElement.textContent = countdown + ' seconds';
+            
+            if (countdown <= 0) {
+                clearInterval(timer);
+                countdownElement.textContent = 'Redirecting...';
+            }
+        }, 1000);
+    </script>
+</body>
+</html>

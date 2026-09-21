@@ -1,0 +1,1687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Music Recommendations - CineTune</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+
+    body {
+      background: linear-gradient(135deg, #0c0c2e 0%, #1a1a4a 50%, #2d1b69 100%);
+      color: #fff;
+      min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding: 20px 40px;
+      position: relative;
+    }
+
+    .btn {
+      padding: 12px 25px;
+      border: none;
+      border-radius: 30px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.3s;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    .back-btn { background: linear-gradient(45deg, #ff416c, #ff4b2b); color: white; }
+    .exit-btn { 
+      background: linear-gradient(45deg, #00b4db, #0083b0); 
+      color: white; 
+      margin-bottom: 10px;
+    }
+    .history-btn {
+      background: linear-gradient(45deg, #9C27B0, #673AB7);
+      color: white;
+      margin-bottom: 10px;
+    }
+    .btn:hover { transform: translateY(-3px); }
+
+    .main-content { padding: 40px; max-width: 1200px; margin: auto; }
+
+    h1.page-title {
+      font-size: 2.5rem;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 10px;
+      background: linear-gradient(45deg, #ff0080, #ff8c00, #40e0d0);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .mood-indicator {
+      text-align: center;
+      font-size: 1.2rem;
+      color: #ff8c00;
+      margin-bottom: 20px;
+    }
+
+    .page-subtitle { text-align: center; color: #ccc; margin-bottom: 40px; }
+
+    /* Filters */
+    .filter-container {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-bottom: 40px;
+      position: relative;
+    }
+
+    .filter-select, .search-input {
+      padding: 12px 20px;
+      border-radius: 25px;
+      border: none;
+      outline: none;
+      background: rgba(255, 255, 255, 0.15);
+      color: white;
+      font-size: 1rem;
+      backdrop-filter: blur(10px);
+    }
+
+    option { background: #1a1a4a; color: white; }
+    .search-input::placeholder { color: rgba(255, 255, 255, 0.7); }
+
+    .search-button {
+      padding: 12px 25px;
+      border: none;
+      border-radius: 25px;
+      background: linear-gradient(45deg, #ff0080, #ff8c00);
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .search-button:hover { transform: scale(1.05); }
+
+    /* Header Right */
+    .header-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 10px;
+    }
+
+    .header-icons {
+      display: flex;
+      gap: 15px;
+    }
+
+    .filter-icon, .history-icon {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: 0.3s;
+      backdrop-filter: blur(10px);
+    }
+
+    .filter-icon:hover, .history-icon:hover {
+      background: rgba(255, 255, 255, 0.25);
+      transform: scale(1.05);
+    }
+
+    .filter-icon svg, .history-icon svg {
+      width: 24px;
+      height: 24px;
+      fill: white;
+    }
+
+    /* Filter Dropdown */
+    .filter-dropdown {
+      position: absolute;
+      right: 40px;
+      top: 140px;
+      background: rgba(26, 26, 74, 0.95);
+      border-radius: 15px;
+      padding: 20px;
+      width: 250px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(10px);
+      z-index: 10;
+      display: none;
+    }
+
+    .filter-dropdown.active {
+      display: block;
+    }
+
+    .filter-group {
+      margin-bottom: 20px;
+    }
+
+    .filter-group h3 {
+      font-size: 1rem;
+      margin-bottom: 10px;
+      color: #ff8c00;
+    }
+
+    .filter-options {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .filter-option {
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      padding: 8px 12px;
+      border-radius: 8px;
+      transition: 0.2s;
+    }
+
+    .filter-option:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .filter-option input {
+      margin-right: 10px;
+    }
+
+    .filter-option label {
+      cursor: pointer;
+    }
+
+    .apply-filters-btn {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 25px;
+      background: linear-gradient(45deg, #ff0080, #ff8c00);
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .apply-filters-btn:hover {
+      transform: translateY(-2px);
+    }
+
+    /* Music Grid */
+    .music-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 30px;
+    }
+
+    .music-card {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 15px;
+      overflow: hidden;
+      padding: 15px;
+      text-align: center;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+      transition: 0.3s;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .music-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    .music-img-container {
+      width: 100%;
+      height: 200px;
+      position: relative;
+      margin-bottom: 10px;
+      border-radius: 10px;
+      overflow: hidden;
+      background: linear-gradient(45deg, #1a1a4a, #2d1b69);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .music-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 10px;
+    }
+
+    .music-placeholder {
+      font-size: 3rem;
+      color: rgba(255, 255, 255, 0.3);
+    }
+
+    .music-title {
+      font-size: 1rem;
+      color: #fff;
+      font-weight: 600;
+      margin-bottom: 6px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .music-info { font-size: 0.9rem; color: #ff8c00; margin-bottom: 4px; }
+    .music-lang { font-size: 0.8rem; color: #40e0d0; }
+    
+    .music-platforms {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    
+    .platform-btn {
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      border-radius: 20px;
+      padding: 6px 12px;
+      color: white;
+      font-size: 0.7rem;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    
+    .platform-btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: scale(1.05);
+    }
+    
+    .youtube-btn { background: linear-gradient(45deg, #FF0000, #CC0000); }
+    .spotify-btn { background: linear-gradient(45deg, #1DB954, #1ED760); }
+    
+    .viewed-badge {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: linear-gradient(45deg, #9C27B0, #673AB7);
+      color: white;
+      font-size: 0.7rem;
+      padding: 4px 8px;
+      border-radius: 10px;
+      font-weight: 600;
+      z-index: 2;
+    }
+
+    /* Music Detail Modal */
+    .music-modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .music-modal-overlay.active {
+      display: flex;
+    }
+
+    .music-modal {
+      background: linear-gradient(135deg, #1a1a4a 0%, #2d1b69 100%);
+      border-radius: 15px;
+      width: 90%;
+      max-width: 500px;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 25px;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+      position: relative;
+    }
+
+    .music-modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 20px;
+    }
+
+    .music-modal-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #ff8c00;
+      margin-right: 20px;
+    }
+
+    .close-modal {
+      background: rgba(255, 255, 255, 0.1);
+      border: none;
+      color: white;
+      font-size: 1.5rem;
+      width: 35px;
+      height: 35px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: 0.3s;
+    }
+
+    .close-modal:hover {
+      background: rgba(255, 255, 255, 0.2);
+      transform: scale(1.1);
+    }
+
+    .music-modal-img-container {
+      width: 100%;
+      height: 250px;
+      position: relative;
+      margin-bottom: 20px;
+      border-radius: 10px;
+      overflow: hidden;
+      background: linear-gradient(45deg, #1a1a4a, #2d1b69);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .music-modal-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 10px;
+    }
+
+    .music-modal-placeholder {
+      font-size: 4rem;
+      color: rgba(255, 255, 255, 0.3);
+    }
+
+    .music-modal-details {
+      display: grid;
+      gap: 12px;
+    }
+
+    .music-detail-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .detail-label {
+      font-weight: 600;
+      color: #ff8c00;
+    }
+
+    .detail-value {
+      color: #fff;
+      text-align: right;
+    }
+
+    .music-platforms-modal {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+      justify-content: center;
+    }
+    
+    .platform-btn-modal {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 25px;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .platform-btn-modal:hover {
+      transform: translateY(-3px);
+    }
+    
+    .youtube-btn-modal { 
+      background: linear-gradient(45deg, #FF0000, #CC0000); 
+    }
+    
+    .spotify-btn-modal { 
+      background: linear-gradient(45deg, #1DB954, #1ED760); 
+    }
+
+    /* History Modal */
+    .history-modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .history-modal-overlay.active {
+      display: flex;
+    }
+
+    .history-modal {
+      background: linear-gradient(135deg, #1a1a4a 0%, #2d1b69 100%);
+      border-radius: 15px;
+      width: 90%;
+      max-width: 800px;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 25px;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+      position: relative;
+    }
+
+    .history-modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .history-modal-title {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #9C27B0;
+    }
+
+    .clear-history-btn {
+      background: linear-gradient(45deg, #ff416c, #ff4b2b);
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .clear-history-btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .history-list {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .history-item {
+      display: flex;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      padding: 15px;
+      align-items: center;
+      gap: 15px;
+      transition: 0.3s;
+      cursor: pointer;
+    }
+
+    .history-item:hover {
+      background: rgba(255, 255, 255, 0.15);
+      transform: translateX(5px);
+    }
+
+    .history-item-img-container {
+      width: 80px;
+      height: 80px;
+      border-radius: 8px;
+      overflow: hidden;
+      background: linear-gradient(45deg, #1a1a4a, #2d1b69);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .history-item-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .history-item-placeholder {
+      font-size: 2rem;
+      color: rgba(255, 255, 255, 0.3);
+    }
+
+    .history-item-details {
+      flex: 1;
+    }
+
+    .history-item-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 5px;
+    }
+
+    .history-item-info {
+      font-size: 0.9rem;
+      color: #ff8c00;
+      margin-bottom: 3px;
+    }
+
+    .history-item-date {
+      font-size: 0.8rem;
+      color: #40e0d0;
+    }
+
+    .empty-history {
+      text-align: center;
+      padding: 40px;
+      color: #ccc;
+      font-style: italic;
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <button class="btn back-btn" onclick="window.location.href='mood-selection.html'">Back</button>
+    <div class="header-right">
+      <button class="btn exit-btn" onclick="window.location.href='thank-you.html'">Exit</button>
+      <button class="btn history-btn" id="viewHistoryBtn">View History</button>
+      
+      <div class="header-icons">
+        <!-- Filter Icon -->
+        <div class="filter-icon" id="filterIcon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M10 18h4v-2h-4v2zM3 6v2h18V6H3zm3 7h12v-2H6v2z"/>
+          </svg>
+        </div>
+
+        <!-- History Icon -->
+        <div class="history-icon" id="historyIcon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Filter Dropdown -->
+    <div class="filter-dropdown" id="filterDropdown">
+      <div class="filter-group">
+        <h3>Sort by Mood</h3>
+        <div class="filter-options">
+          <div class="filter-option">
+            <input type="radio" id="all-moods" name="mood" value="" checked>
+            <label for="all-moods">All Moods</label>
+          </div>
+          <div class="filter-option">
+            <input type="radio" id="romantic" name="mood" value="romantic">
+            <label for="romantic">Romantic</label>
+          </div>
+          <div class="filter-option">
+            <input type="radio" id="happy" name="mood" value="happy">
+            <label for="happy">Happy</label>
+          </div>
+          <div class="filter-option">
+            <input type="radio" id="sad" name="mood" value="sad">
+            <label for="sad">Sad</label>
+          </div>
+          <div class="filter-option">
+            <input type="radio" id="motivated" name="mood" value="motivated">
+            <label for="motivated">Motivated</label>
+          </div>
+          <div class="filter-option">
+            <input type="radio" id="energetic" name="mood" value="energetic">
+            <label for="energetic">Energetic</label>
+          </div>
+          <div class="filter-option">
+            <input type="radio" id="peaceful" name="mood" value="peaceful">
+            <label for="peaceful">Peaceful</label>
+          </div>
+        </div>
+      </div>
+      
+      <button class="apply-filters-btn" id="applyFiltersBtn">Apply Filters</button>
+    </div>
+  </header>
+
+  <div class="main-content">
+    <h1 class="page-title">Music Recommendations</h1>
+    <div class="mood-indicator" id="moodIndicator">All Music Recommendations</div>
+    <p class="page-subtitle">Filter by language or search your favorite songs</p>
+
+    <!-- Filters -->
+    <div class="filter-container">
+      <select id="languageFilter" class="filter-select">
+        <option value="">All Languages</option>
+        <option value="Kannada">Kannada</option>
+        <option value="Tamil">Tamil</option>
+        <option value="Telugu">Telugu</option>
+        <option value="Malayalam">Malayalam</option>
+        <option value="Hindi">Hindi</option>
+        <option value="English">English</option>
+        <option value="Punjabi">Punjabi</option>
+        <option value="Marathi">Marathi</option>
+        <option value="Bengali">Bengali</option>
+      </select>
+
+      <input type="text" id="searchBox" class="search-input" placeholder="Search by song name..." />
+      <button class="search-button" id="searchBtn">Search</button>
+    </div>
+
+    <!-- Music Grid -->
+    <div class="music-grid" id="musicGrid">
+      <p style="text-align:center;color:#ff8c00;">Loading music...</p>
+    </div>
+  </div>
+
+  <!-- Music Detail Modal -->
+  <div class="music-modal-overlay" id="musicModal">
+    <div class="music-modal">
+      <div class="music-modal-header">
+        <h2 class="music-modal-title" id="modalMusicTitle">Song Title</h2>
+        <button class="close-modal" onclick="closeMusicModal()">&times;</button>
+      </div>
+      
+      <div class="music-modal-img-container">
+        <img id="modalMusicImage" src="" alt="Song Cover" class="music-modal-img" onerror="handleImageError(this)">
+        <div class="music-modal-placeholder" id="modalMusicPlaceholder">♪</div>
+      </div>
+      
+      <div class="music-modal-details">
+        <div class="music-detail-item">
+          <span class="detail-label">Singer:</span>
+          <span class="detail-value" id="modalSinger">-</span>
+        </div>
+        <div class="music-detail-item">
+          <span class="detail-label">Movie/Album:</span>
+          <span class="detail-value" id="modalMovie">-</span>
+        </div>
+        <div class="music-detail-item">
+          <span class="detail-label">Mood:</span>
+          <span class="detail-value" id="modalMood">-</span>
+        </div>
+        <div class="music-detail-item">
+          <span class="detail-label">Language:</span>
+          <span class="detail-value" id="modalLanguage">-</span>
+        </div>
+      </div>
+      
+      <div class="music-platforms-modal">
+        <button class="platform-btn-modal youtube-btn-modal" id="modalYoutubeBtn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="white">
+            <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/>
+          </svg>
+          YouTube
+        </button>
+        <button class="platform-btn-modal spotify-btn-modal" id="modalSpotifyBtn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="white">
+            <path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm0 22c-5.514 0-10-4.486-10-10s4.486-10 10-10 10 4.486 10 10-4.486 10-10 10zm0-15c-2.757 0-5 2.243-5 5s2.243 5 5 5 5-2.243 5-5-2.243-5-5-5z"/>
+          </svg>
+          Spotify
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- History Modal -->
+  <div class="history-modal-overlay" id="historyModal">
+    <div class="history-modal">
+      <div class="history-modal-header">
+        <h2 class="history-modal-title">Your Music History</h2>
+        <button class="clear-history-btn" id="clearHistoryBtn">Clear History</button>
+      </div>
+      
+      <div class="history-list" id="historyList">
+        <!-- History items will be populated here -->
+      </div>
+      
+      <button class="close-modal" onclick="closeHistoryModal()" style="margin-top: 20px; width: 100%;">&times; Close</button>
+    </div>
+  </div>
+
+  <script>
+    let allSongs = [];
+    let currentFilters = {
+      language: '',
+      search: '',
+      mood: ''
+    };
+
+    // Improved image error handling
+    function handleImageError(img) {
+      console.log("Image failed to load:", img.src);
+      const container = img.parentElement;
+      const placeholder = container.querySelector('.music-placeholder, .music-modal-placeholder, .history-item-placeholder');
+      
+      img.style.display = 'none';
+      if (placeholder) {
+        placeholder.style.display = 'flex';
+      }
+    }
+
+    function handleImageLoad(img) {
+      const container = img.parentElement;
+      const placeholder = container.querySelector('.music-placeholder, .music-modal-placeholder, .history-item-placeholder');
+      
+      if (placeholder) {
+        placeholder.style.display = 'none';
+      }
+      img.style.display = 'block';
+    }
+
+    // Initialize music history from localStorage
+    function initializeMusicHistory() {
+      if (!localStorage.getItem('musicHistory')) {
+        localStorage.setItem('musicHistory', JSON.stringify([]));
+      }
+    }
+
+    // Add song to history
+    function addToMusicHistory(song) {
+      const history = JSON.parse(localStorage.getItem('musicHistory'));
+      
+      // Check if song already exists in history
+      const existingIndex = history.findIndex(item => item.name === song.name);
+      
+      if (existingIndex !== -1) {
+        // Update the timestamp if already exists
+        history[existingIndex].viewedAt = new Date().toISOString();
+      } else {
+        // Add new song to history
+        const historyItem = {
+          ...song,
+          viewedAt: new Date().toISOString()
+        };
+        history.unshift(historyItem); // Add to beginning of array
+      }
+      
+      // Limit history to 50 items
+      if (history.length > 50) {
+        history.splice(50);
+      }
+      
+      localStorage.setItem('musicHistory', JSON.stringify(history));
+      updateViewedBadges();
+    }
+
+    // Get music history
+    function getMusicHistory() {
+      return JSON.parse(localStorage.getItem('musicHistory') || '[]');
+    }
+
+    // Clear music history
+    function clearMusicHistory() {
+      localStorage.setItem('musicHistory', JSON.stringify([]));
+      updateViewedBadges();
+      displayHistory();
+    }
+
+    // Update viewed badges on music cards
+    function updateViewedBadges() {
+      const history = getMusicHistory();
+      const musicCards = document.querySelectorAll('.music-card');
+      
+      musicCards.forEach(card => {
+        const title = card.querySelector('.music-title').textContent;
+        const existingBadge = card.querySelector('.viewed-badge');
+        
+        // Remove existing badge
+        if (existingBadge) {
+          existingBadge.remove();
+        }
+        
+        // Add badge if song is in history
+        if (history.some(item => item.name === title)) {
+          const badge = document.createElement('div');
+          badge.className = 'viewed-badge';
+          badge.textContent = 'Listened';
+          card.appendChild(badge);
+        }
+      });
+    }
+
+    // Display history in the history modal
+    function displayHistory() {
+      const historyList = document.getElementById('historyList');
+      const history = getMusicHistory();
+      
+      if (history.length === 0) {
+        historyList.innerHTML = '<div class="empty-history">No songs listened yet. Start exploring!</div>';
+        return;
+      }
+      
+      historyList.innerHTML = history.map(song => `
+        <div class="history-item" data-song-name="${song.name}">
+          <div class="history-item-img-container">
+            <img src="${song.song_image_url}" alt="${song.name}" class="history-item-img" 
+                 onerror="handleImageError(this)" onload="handleImageLoad(this)">
+            <div class="history-item-placeholder">♪</div>
+          </div>
+          <div class="history-item-details">
+            <div class="history-item-title">${song.name}</div>
+            <div class="history-item-info">${song.singer} | ${song.movie_name}</div>
+            <div class="history-item-info">${song.mood} | ${song.language}</div>
+            <div class="history-item-date">Listened: ${new Date(song.viewedAt).toLocaleString()}</div>
+          </div>
+        </div>
+      `).join('');
+      
+      // Add click event to history items
+      document.querySelectorAll('.history-item').forEach(item => {
+        item.addEventListener('click', function() {
+          const songName = this.getAttribute('data-song-name');
+          const song = history.find(s => s.name === songName);
+          if (song) {
+            closeHistoryModal();
+            openMusicModal(song);
+          }
+        });
+      });
+    }
+
+    function openMusicModal(song) {
+      console.log("🎵 Opening modal for:", song.name);
+      
+      // Add to history when modal opens
+      addToMusicHistory(song);
+      
+      const modal = document.getElementById('musicModal');
+      if (!modal) {
+        console.error("❌ Modal element not found!");
+        return;
+      }
+      
+      // Populate modal with song data
+      document.getElementById('modalMusicTitle').textContent = song.name || 'Unknown Song';
+      
+      const modalImg = document.getElementById('modalMusicImage');
+      const modalPlaceholder = document.getElementById('modalMusicPlaceholder');
+      
+      if (song.song_image_url) {
+        modalImg.src = song.song_image_url;
+        modalImg.style.display = 'block';
+        modalPlaceholder.style.display = 'none';
+      } else {
+        modalImg.style.display = 'none';
+        modalPlaceholder.style.display = 'flex';
+      }
+      
+      document.getElementById('modalSinger').textContent = song.singer || 'Not available';
+      document.getElementById('modalMovie').textContent = song.movie_name || 'Not available';
+      document.getElementById('modalMood').textContent = song.mood || 'Not specified';
+      document.getElementById('modalLanguage').textContent = song.language || 'Not available';
+      
+      // Set up platform buttons
+      const youtubeBtn = document.getElementById('modalYoutubeBtn');
+      const spotifyBtn = document.getElementById('modalSpotifyBtn');
+      
+      if (song.youtube_url) {
+        youtubeBtn.onclick = () => window.open(song.youtube_url, '_blank');
+        youtubeBtn.style.display = 'flex';
+      } else {
+        youtubeBtn.style.display = 'none';
+      }
+      
+      if (song.spotify_url) {
+        spotifyBtn.onclick = () => window.open(song.spotify_url, '_blank');
+        spotifyBtn.style.display = 'flex';
+      } else {
+        spotifyBtn.style.display = 'none';
+      }
+      
+      // Show modal
+      modal.classList.add('active');
+      console.log("✅ Modal should be visible now");
+    }
+
+    function closeMusicModal() {
+      const modal = document.getElementById('musicModal');
+      if (modal) {
+        modal.classList.remove('active');
+      }
+    }
+
+    function openHistoryModal() {
+      displayHistory();
+      document.getElementById('historyModal').classList.add('active');
+    }
+
+    function closeHistoryModal() {
+      document.getElementById('historyModal').classList.remove('active');
+    }
+
+    // Close modals when clicking outside
+    document.getElementById('musicModal').addEventListener('click', function(e) {
+      if (e.target === this) {
+        closeMusicModal();
+      }
+    });
+
+    document.getElementById('historyModal').addEventListener('click', function(e) {
+      if (e.target === this) {
+        closeHistoryModal();
+      }
+    });
+
+    // Close modals with Escape key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        closeMusicModal();
+        closeHistoryModal();
+      }
+    });
+
+    async function loadMusicRecommendations() {
+      const mood = (localStorage.getItem("selectedMood") || "").toLowerCase();
+      console.log("Requested mood:", mood);
+      
+      document.getElementById("moodIndicator").textContent =
+        mood ? `Music for mood: ${mood}` : "All Music Recommendations";
+
+      try {
+        // Load songs from our expanded dataset
+        const songs = await loadSongsFromCSV();
+        
+        // Filter by mood if specified
+        if (mood) {
+          allSongs = songs.filter(song => 
+            song.mood && song.mood.toLowerCase() === mood.toLowerCase()
+          );
+        } else {
+          allSongs = songs;
+        }
+        
+        displayMusic(allSongs);
+      } catch (error) {
+        console.error("Error fetching music:", error);
+        // Show test songs if loading fails
+        showTestSongs();
+      }
+    }
+
+    // Load songs from expanded CSV data
+    async function loadSongsFromCSV() {
+      return [
+        // KANNADA SONGS
+        {
+          name: "Yaarige Yaaruntu",
+          singer: "Rajesh Krishnan",
+          movie_name: "Nanda Gokula",
+          mood: "Happy",
+          language: "Kannada",
+          song_image_url: "https://c.saavncdn.com/328/Nanda-Gokula-Kannada-2022-20221005191124-500x500.jpg",
+          youtube_url: "https://www.youtube.com/watch?v=FWV58Rx0rAw",
+          spotify_url: "https://open.spotify.com/track/5CVb9ssEPRmLwPoaR6UVQv"
+        },
+        {
+          name: "Neene Neene",
+          singer: "Sonu Nigam",
+          movie_name: "Aakash",
+          mood: "Romantic",
+          language: "Kannada",
+          song_image_url: "https://c.saavncdn.com/227/Kannada-2022-20220929154819-500x500.jpg",
+          youtube_url: "https://www.youtube.com/watch?v=8sX50VqHnA4",
+          spotify_url: "https://open.spotify.com/track/0DXQOj0mPO5c5MSQk6HEae"
+        },
+        {
+          name: "Belageddu",
+          singer: "Haripriya",
+          movie_name: "Kirik Party",
+          mood: "Happy",
+          language: "Kannada",
+          song_image_url: "https://c.saavncdn.com/328/Kirik-Party-Kannada-2016-20221005191124-500x500.jpg",
+          youtube_url: "https://www.youtube.com/watch?v=vYXGjPnxh9Y",
+          spotify_url: "https://open.spotify.com/track/7vVx3j2H2yVb5uH1fWULk8"
+        },
+        {
+          name: "Hrudayada Hadugalu",
+          singer: "S. P. Balasubrahmanyam",
+          movie_name: "America America",
+          mood: "Sad",
+          language: "Kannada",
+          song_image_url: "https://c.saavncdn.com/328/America-America-Kannada-2022-20221005191124-500x500.jpg",
+          youtube_url: "https://www.youtube.com/watch?v=obW0K8YfYg8",
+          spotify_url: "https://open.spotify.com/track/1N5WKn0s5YhYwL1pxoavSq"
+        },
+        {
+          name: "Jokae Jokae",
+          singer: "Vijay Prakash",
+          movie_name: "Dia",
+          mood: "Romantic",
+          language: "Kannada",
+          song_image_url: "https://c.saavncdn.com/328/Dia-Kannada-2020-20221005191124-500x500.jpg",
+          youtube_url: "https://www.youtube.com/watch?v=ABCD1234",
+          spotify_url: "https://open.spotify.com/track/7vVx3j2H2yVb5uH1fWULk9"
+        },
+        {
+          name: "Bombe Heluthaithe",
+          singer: "Vijay Prakash",
+          movie_name: "Chamak",
+          mood: "Romantic",
+          language: "Kannada",
+          song_image_url: "https://c.saavncdn.com/707/Chamak-Kannada-2023-20231012035739-500x500.jpg",
+          youtube_url: "https://www.youtube.com/watch?v=zV9i1m7bU8B",
+          spotify_url: "https://open.spotify.com/track/6FvFjCzjZP8aQDL3m6JxF4"
+        },
+        {
+          name: "Sariyagi Ninnayanavu",
+          singer: "Sonu Nigam, Shreya Ghoshal",
+          movie_name: "Mungaru Male",
+          mood: "Romantic",
+          language: "Kannada",
+          song_image_url: "https://c.saavncdn.com/328/Mungaru-Male-Kannada-2006-20221005191124-500x500.jpg",
+          youtube_url: "https://www.youtube.com/watch?v=8sX50VqHnA5",
+          spotify_url: "https://open.spotify.com/track/0DXQOj0mPO5c5MSQk6HEaf"
+        },
+        {
+          name: "Ondu Malebillu",
+          singer: "Rajesh Krishnan",
+          movie_name: "Mungaru Male",
+          mood: "Romantic",
+          language: "Kannada",
+          song_image_url: "https://c.saavncdn.com/328/Mungaru-Male-Kannada-2006-20221005191124-500x500.jpg",
+          youtube_url: "https://www.youtube.com/watch?v=FWV58Rx0rAx",
+          spotify_url: "https://open.spotify.com/track/5CVb9ssEPRmLwPoaR6UVQw"
+        },
+        {
+          name: "Kaanadanthe Maayavi",
+          singer: "Kunal Ganjawala",
+          movie_name: "Milana",
+          mood: "Romantic",
+          language: "Kannada",
+          song_image_url: "https://c.saavncdn.com/Milana-Kannada-2007-20221005191124-500x500.jpg",
+          youtube_url: "https://www.youtube.com/watch?v=vYXGjPnxh9Z",
+          spotify_url: "https://open.spotify.com/track/7vVx3j2H2yVb5uH1fWULk7"
+        },
+        {
+          name: "Araluva Hoovugale",
+          singer: "S. P. Balasubrahmanyam",
+          movie_name: "Geetha",
+          mood: "Sad",
+          language: "Kannada",
+          song_image_url: "https://c.saavncdn.com/328/Geetha-1981-20221005191124-500x500.jpg",
+          youtube_url: "https://www.youtube.com/watch?v=obW0K8YfYg9",
+          spotify_url: "https://open.spotify.com/track/1N5WKn0s5YhYwL1pxoavSr"
+        },
+
+        // TAMIL SONGS
+        {
+          name: "Minsara Poove",
+          singer: "Hariharan",
+          movie_name: "Padayappa",
+          mood: "Romantic",
+          language: "Tamil",
+          song_image_url: "https://c.saavncdn.com/328/Padayappa-Tamil-1999-20221005191124-500x500.jpg",
+          youtube_url: "https://www.youtube.com/watch?v=zZoKZp1M20A",
+          spotify_url: "https://open.spotify.com/track/4EG6g4pYVScnVq6oUXT6uG"
+        },
+        {
+          name: "Vaseegara",
+          singer: "Bombay Jayashri",
+          movie_name: "Minnale",
+          mood: "Romantic",
+          language: "Tamil",
+          song_image_url: "https://c.saavncdn.com/328/Minnale-Tamil-2001-20221005191124-500x500.jpg",
+          youtube_url: "https://www.youtube.com/watch?v=8qfXj0dW_5s",
+          spotify_url: "https://open.spotify.com/track/1RZtS4iZobGdNfnxR9lWxW"
+        },
+        {
+          name: "Why This Kolaveri Di",
+          singer: "Dhanush",
+          movie_name: "3",
+          mood: "Happy",
+          language: "Tamil",
+          song_image_url: "https://c.saavncdn.com/328/3-Tamil-2012-20221005191124-500x500.jpg",
+          youtube_url: "https://www.youtube.com/watch?v=YR12Z8f1Dh8",
+          spotify_url: "https://open.spotify.com/track/5n8AujQLNs0Xl2vqL2J2L4"
+        },
+        {
+          name: "Kannazhaga",
+          singer: "Dhanush, Shruti Haasan",
+          movie_name: "3",
+          mood: "Romantic",
+          language: "Tamil",
+          song_image_url: "https://c.saavncdn.com/328/3-Tamil-2012-20221005191124-500x500.jpg",
+          youtube_url: "https://www.youtube.com/watch?v=1tRLveSyNz8",
+          spotify_url: "https://open.spotify.com/track/5oSAgbBlbq3s2vYduWVC3I"
+        },
+        {
+          name: "Aalaporaan Thamizhan",
+          singer: "A. R. Rahman",
+          movie_name: "Mersal",
+          mood: "Motivated",
+          language: "Tamil",
+          song_image_url: "https://c.saavncdn.com/328/Mersal-Tamil-2017-20221005191124-500x500.jpg",
+          youtube_url: "https://www.youtube.com/watch?v=3x2ABSAMVno",
+          spotify_url: "https://open.spotify.com/track/6lO1uIXqFDYd0Sg7wK0eN9"
+        },
+        {
+          name: "Maruvaarthai",
+          singer: "Sid Sriram",
+          movie_name: "Enai Noki Paayum Thota",
+          mood: "Romantic",
+          language: "Tamil",
+          song_image_url: "https://c.saavncdn.com/328/Enai-Noki-Paayum-Thota-Tamil-2019-20221005191124-500x500.jpg",
+          youtube_url: "https://www.youtube.com/watch?v=ABCD5678",
+          spotify_url: "https://open.spotify.com/track/6lO1uIXqFDYd0Sg7wK0eN8"
+        },
+        {
+          name: "Pudhu Metro Rail",
+          singer: "Anirudh Ravichander",
+          movie_name: "Master",
+          mood: "Energetic",
+          language: "Tamil",
+          song_image_url: "https://c.saavncdn.com/328/Master-Tamil-2021-20221005191124-500x500.jpg",
+          youtube_url: "https://www.youtube.com/watch?v=zZoKZp1M20B",
+          spotify_url: "https://open.spotify.com/track/4EG6g4pYVScnVq6oUXT6uH1"
+        },
+        {
+          name: "Anbil Avan",
+          singer: "A. R. Rahman, Chinmayi",
+          movie_name: "Vinnaithaandi Varuvaayaa",
+          mood: "Romantic",
+          language: "Tamil",
+          song_image_url: "https://c.saavncdn.com/328/Vinnaithaandi-Varuvaayaa-Tamil-2010-20221005191124-500x500.jpg",
+          youtube_url: "https://www.youtube.com/watch?v=zZoKZp1M20B",
+          spotify_url: "https://open.spotify.com/track/4EG6g4pYVScnVq6oUXT6uH"
+        },
+        {
+          name: "Nenjukkul Peithidum",
+          singer: "Hariharan, Sujatha Mohan",
+          movie_name: "Vaaranam Aayiram",
+          mood: "Romantic",
+          language: "Tamil",
+          song_image_url: "https://c.saavncdn.com/328/Vaaranam-Aayiram-Tamil-2008-20221005191124-500x500.jpg",
+          youtube_url: "https://www.youtube.com/watch?v=8qfXj0dW_5t",
+          spotify_url: "https://open.spotify.com/track/1RZtS4iZobGdNfnxR9lWxX"
+        },
+        {
+          name: "Adiye",
+          singer: "A. R. Rahman, Sid Sriram",
+          movie_name: "Bachelor",
+          mood: "Romantic",
+          language: "Tamil",
+          song_image_url: "https://c.saavncdn.com/328/Bachelor-2021-20221005191124-500x500.jpg",
+          youtube_url: "https://www.youtube.com/watch?v=YR12Z8f1Dh9",
+          spotify_url: "https://open.spotify.com/track/5n8AujQLNs0Xl2vqL2J2L5"
+        },
+        {
+          name: "Megham Karukatha",
+          singer: "Vijay Yesudas, Shweta Mohan",
+          movie_name: "Thiruchitrambalam",
+          mood: "Romantic",
+          language: "Tamil",
+          song_image_url: "https://c.saavncdn.com/328/Thiruchitrambalam-Tamil-2022-20221005191124-500x500.jpg",
+          youtube_url: "https://www.youtube.com/watch?v=1tRLveSyNz9",
+          spotify_url: "https://open.spotify.com/track/5oSAgbBlbq3s2vYduWVC3J"
+        },
+
+        // TELUGU SONGS
+        {
+          name: "Butta Bomma",
+          singer: "Armaan Malik",
+          movie_name: "Ala Vaikunthapurramuloo",
+          mood: "Romantic",
+          language: "Telugu",
+          song_image_url: "https://c.saavncdn.com/328/Ala-Vaikunthapurramuloo-Telugu-2020-20221005191124-500x500.jpg",
+          youtube_url: "https://www.youtube.com/watch?v=1YVz3N3pFGY",
+          spotify_url: "https://open.spotify.com/track/3NfxSdJnVdon1axzloJgba"
+        },
+        {
+          name: "Samajavaragamana",
+          singer: "Sid Sriram",
+          movie_name: "Ala Vaikunthapurramuloo",
+          mood: "Romantic",
+          language: "Telugu",
+          song_image_url: "https://c.saavncdn.com/328/Ala-Vaikunthapurramuloo-Telugu-2020-20221005191124-500x500.jpg",
+          youtube_url: "https://www.youtube.com/watch?v=O2RXiaxjJjY",
+          spotify_url: "https://open.spotify.com/track/4YxrYG1HR2eb2ThZcZKfO2"
+        },
+        {
+          name: "Ramulo Ramula",
+          singer: "Anurag Kulkarni",
+          movie_name: "Ala Vaikunthapurramuloo",
+          mood: "Happy",
+          language: "Telugu",
+          song_image_url: "https://c.saavncdn.com/328/Ala-Vaikunthapurramuloo-Telugu-2020-20221005191124-500x500.jpg",
+          youtube_url: "https://www.youtube.com/watch?v=tJnlT2ae_bo",
+          spotify_url: "https://open.spotify.com/track/5MiUPY0s3pK4Uw1iTtRZQG"
+        },
+        {
+          name: "Srivali",
+          singer: "Javed Ali",
+          movie_name: "Jaanu",
+          mood: "Romantic",
+          language: "Telugu",
+          song_image_url: "https://c.saavncdn.com/328/Jaanu-Telugu-2020-20221005191124-500x500.jpg",
+          youtube_url: "https://www.youtube.com/watch?v=ABCD9012",
+          spotify_url: "https://open.spotify.com/track/5MiUPY0s3pK4Uw1iTtRZQH"
+        },
+        {
+          name: "Nuvvunte Naa Jathaga",
+          singer: "Anurag Kulkarni",
+          movie_name: "A.. Aa",
+          mood: "Romantic",
+          language: "Telugu",
+          song_image_url: "https://c.saavncdn.com/A-Aa-Telugu-2016-20221005191124-500x500.jpg",
+          youtube_url: "https://www.youtube.com/watch?v=1YVz3N3pFGZ",
+          spotify_url: "https://open.spotify.com/track/3NfxSdJnVdon1axzloJgbb"
+        },
+        {
+          name: "Inkem Inkem Inkem Kaavaale",
+          singer: "Sid Sriram",
+          movie_name: "Geetha Govindam",
+          mood: "Romantic",
+          language: "Telugu",
+          song_image_url: "https://c.saavncdn.com/328/Geetha-Govindam-Telugu-2018-20221005191124-500x500.jpg",
+          youtube_url: "https://www.youtube.com/watch?v=O2RXiaxjJjZ",
+          spotify_url: "https://open.spotify.com/track/4YxrYG1HR2eb2ThZcZKfO3"
+        },
+        {
+          name: "Priya Mithunam",
+          singer: "S. P. Balasubrahmanyam",
+          movie_name: "Mithunam",
+          mood: "Romantic",
+          language: "Telugu",
+          song_image_url: "https://c.saavncdn.com/328/Mithunam-Telugu-2012-20221005191124-500x500.jpg",
+          youtube_url: "https://www.youtube.com/watch?v=tJnlT2ae_bp",
+          spotify_url: "https://open.spotify.com/track/5MiUPY0s3pK4Uw1iTtRZQF"
+        },
+        {
+          name: "Ye Mantramo",
+          singer: "Anurag Kulkarni",
+          movie_name: "Bheeshma",
+          mood: "Romantic",
+          language: "Telugu",
+          song_image_url: "https://c.saavncdn.com/328/Bheeshma-Telugu-2020-20221005191124-500x500.jpg",
+          youtube_url: "https://www.youtube.com/watch?v=ABCD9013",
+          spotify_url: "https://open.spotify.com/track/5MiUPY0s3pK4Uw1iTtRZQI"
+        },
+
+        // HINDI SONGS
+        {
+          name: "Tum Hi Ho",
+          singer: "Arijit Singh",
+          movie_name: "Aashiqui 2",
+          mood: "Romantic",
+          language: "Hindi",
+          song_image_url: "https://c.saavncdn.com/328/Aashiqui-2-Hindi-2013-20221005191124-500x500.jpg",
+          youtube_url: "https://www.youtube.com/watch?v=Umqb9KENgmk",
+          spotify_url: "https://open.spotify.com/track/7qEHsqek33rTcFNT9PFqLf"
+        },
+        {
+          name: "Kesariya",
+          singer: "Arijit Singh",
+          movie_name: "Brahmāstra",
+          mood: "Romantic",
+          language: "Hindi",
+          song_image_url: "https://c.saavncdn.com/328/Brahmastra-Hindi-20221005191124-500x500.jpg",
+          youtube_url: "https://www.youtube.com/watch?v=BddP6PYo2gs",
+          spotify_url: "https://open.spotify.com/track/5vKZycdmF3hRkQK4Tpo4Xp"
+        },
+        {
+          name: "Apna Bana Le",
+          singer: "Arijit Singh",
+          movie_name: "Bhediya",
+          mood: "Romantic",
+          language: "Hindi",
+          song_image_url: "https://c.saavncdn.com/328/Bhediya-Hindi-2022-20221005191124-500x500.jpg",
+          youtube_url: "https://www.youtube.com/watch?v=PSYHMWmyVfo",
+          spotify_url: "https://open.spotify.com/track/3zA9QdBzYvbQdqvU3jA9Za"
+        },
+        {
+          name: "Kar Har Maidaan Fateh",
+          singer: "Sukhwinder Singh, Shreya Ghoshal",
+          movie_name: "Sanju",
+          mood: "Motivated",
+          language: "Hindi",
+          song_image_url: "https://c.saavncdn.com/328/Sanju-2018-20221005191124-500x500.jpg",
+          youtube_url: "https://www.youtube.com/watch?v=2uQFfpe6C18",
+          spotify_url: "https://open.spotify.com/track/4Uv86qWpGTxf7fU7lG5X6F"
+        },
+        {
+          name: "Zinda",
+          singer: "Siddharth Mahadevan",
+          movie_name: "Bhaag Milkha Bhaag",
+          mood: "Motivated",
+          language: "Hindi",
+          song_image_url: "https://c.saavncdn.com/328/Bhaag-Milkha-Bhaag-Hindi-2013-20221005191124-500x500.jpg",
+          youtube_url: "https://www.youtube.com/watch?v=bf6VdH7ThMs",
+          spotify_url: "https://open.spotify.com/track/0U9YpKQnQyz6zJQz6gWJH"
+        },
+        {
+          name: "Ghungroo",
+          singer: "Arijit Singh",
+          movie_name: "War",
+          mood: "Energetic",
+          language: "Hindi",
+          song_image_url: "https://c.saavncdn.com/328/War-Hindi-20221005191124-500x500.jpg",
+          youtube_url: "https://www.youtube.com/watch?v=ABCD3456",
+          spotify_url: "https://open.spotify.com/track/0U9YpKQnQyz6zJQz6gWJI"
+        },
+        {
+          name: "Channa Mereya",
+          singer: "Arijit Singh",
+          movie_name: "Ae Dil Hai Mushkil",
+          mood: "Sad",
+          language: "Hindi",
+          song_image_url: "https://c.saavncdn.com/328/Ae-Dil-Hai-Mushkil-Hindi-2016-20221005191124-500x500.jpg",
+          youtube_url: "https://www.youtube.com/watch?v=Umqb9KENgml",
+          spotify_url: "https://open.spotify.com/track/7qEHsqek33rTcFNT9PFqLg"
+        },
+        {
+          name: "Raabta",
+          singer: "Arijit Singh",
+          movie_name: "Agent Vinod",
+          mood: "Romantic",
+          language: "Hindi",
+          song_image_url: "https://c.saavncdn.com/328/Agent-Vinod-Hindi-2012-20221005191124-500x500.jpg",
+          youtube_url: "https://www.youtube.com/watch?v=BddP6PYo2gt",
+          spotify_url: "https://open.spotify.com/track/5vKZycdmF3hRkQK4Tpo4Xq"
+        },
+        {
+          name: "Tera Ban Jaunga",
+          singer: "Tulsi Kumar, Akhil Sachdeva",
+          movie_name: "Kabir Singh",
+          mood: "Romantic",
+          language: "Hindi",
+          song_image_url: "https://c.saavncdn.com/Kabir-Singh-Hindi-2019-20221005191124-500x500.jpg",
+          youtube_url: "https://www.youtube.com/watch?v=PSYHMWmyVfp",
+          spotify_url: "https://open.spotify.com/track/3zA9QdBzYvbQdqvU3jA9Zb"
+        },
+        {
+          name: "Garmi",
+          singer: "Neha Kakkar, Badshah",
+          movie_name: "Street Dancer 3D",
+          mood: "Energetic",
+          language: "Hindi",
+          song_image_url: "https://c.saavncdn.com/328/Street-Dancer-3D-Hindi-2020-20221005191124-500x500.jpg",
+          youtube_url: "https://www.youtube.com/watch?v=2uQFfpe6C19",
+          spotify_url: "https://open.spotify.com/track/4Uv86qWpGTxf7fU7lG5X6G"
+        },
+        {
+          name: "Mann Bharrya",
+          singer: "B Praak",
+          movie_name: "Shershaah",
+          mood: "Sad",
+          language: "Hindi",
+          song_image_url: "https://c.saavncdn.com/Shershaah-Hindi-2021-20221005191124-500x500.jpg",
+          youtube_url: "https://www.youtube.com/watch?v=ABCD3457",
+          spotify_url: "https://open.spotify.com/track/0U9YpKQnQyz6zJQz6gWJJ"
+        },
+
+        // MALAYALAM SONGS
+        {
+          name: "Mizhiyil Ninnum",
+          singer: "M. G. Sreekumar",
+          movie_name: "Manichitrathazhu",
+          mood: "Romantic",
+          language: "Malayalam",
+          song_image_url: "https://c.saavncdn.com/328/Manichitrathazhu-1993-20221005191124-500x500.jpg",
+          youtube_url: "https://www.youtube.com/watch?v=Gzm-XzRk4vQ",
+          spotify_url: "https://open.spotify.com/track/1EAcgJvHKqYrYdbFiFa5M3"
+        },
+        {
+          name: "Malare",
+          singer: "Vijay Yesudas",
+          movie_name: "Premam",
+          mood: "Romantic",
+          language: "Malayalam",
+          song_image_url: "https://c.saavncdn.com/328/Premam-Malayalam-2015-20221005191124-500x500.jpg",
+          youtube_url: "https://www.youtube.com/watch?v=Z3xTTb7P5yw",
+          spotify_url: "https://open.spotify.com/track/6QF8P9dYcV2kP7yM1G9mPb"
+        },
+        {
+          name: "Kannum Kannum",
+          singer: "Vineeth Sreenivasan",
+          movie_name: "Thattathin Marayathu",
+          mood: "Romantic",
+          language: "Malayalam",
+          song_image_url: "https://c.saavncdn.com/328/Thattathin-Marayathu-Malayalam-2012-20221005191124-500x500.jpg",
+          youtube_url: "https://www.youtube.com/watch?v=Gzm-XzRk4vR",
+          spotify_url: "https://open.spotify.com/track/1EAcgJvHKqYrYdbFiFa5M4"
+        },
+        {
+          name: "Arike Ninna",
+          singer: "Vijay Yesudas",
+          movie_name: "Bangalore Days",
+          mood: "Romantic",
+          language: "Malayalam",
+          song_image_url: "https://c.saavncdn.com/328/Bangalore-Days-Malayalam-2014-20221005191124-500x500.jpg",
+          youtube_url: "https://www.youtube.com/watch?v=Z3xTTb7P5yx",
+          spotify_url: "https://open.spotify.com/track/6QF8P9dYcV2kP7yM1G9mPc"
+        },
+
+        // ENGLISH SONGS
+        {
+          name: "Shape of You",
+          singer: "Ed Sheeran",
+          movie_name: "÷",
+          mood: "Happy",
+          language: "English",
+          song_image_url: "https://c.saavncdn.com/328/-English-2017-20221005191124-500x500.jpg",
+          youtube_url: "https://www.youtube.com/watch?v=JGwWNGJdvx8",
+          spotify_url: "https://open.spotify.com/track/7qiZfU4dY1lWllzX7mPBI3"
+        },
+        {
+          name: "Perfect",
+          singer: "Ed Sheeran",
+          movie_name: "÷",
+          mood: "Romantic",
+          language: "English",
+          song_image_url: "https://c.saavncdn.com/328/-English-2017-20221005191124-500x500.jpg",
+          youtube_url: "https://www.youtube.com/watch?v=2Vv-BfVoq4g",
+          spotify_url: "https://open.spotify.com/track/0tgVpDi06FyKpA1z0VMD4v"
+        },
+        {
+          name: "Someone Like You",
+          singer: "Adele",
+          movie_name: "21",
+          mood: "Sad",
+          language: "English",
+          song_image_url: "https://c.saavncdn.com/328/21-2011-20221005191124-500x500.jpg",
+          youtube_url: "https://www.youtube.com/watch?v=hLQl3WQQoQ0",
+          spotify_url: "https://open.spotify.com/track/4kflIGfjdZJW4ot2ioixTB"
+        },
+        {
+          name: "Happy",
+          singer: "Pharrell Williams",
+          movie_name: "Despicable Me 2",
+          mood: "Happy",
+          language: "English",
+          song_image_url: "https://c.saavncdn.com/328/Despicable-Me-2-English-20221005191124-500x500.jpg",
+          youtube_url: "https://www.youtube.com/watch?v=ZbZSe6N_BXs",
+          spotify_url: "https://open.spotify.com/track/60nZcImufyMA1MKQY3dcCH"
+        },
+        {
+          name: "Blinding Lights",
+          singer: "The Weeknd",
+          movie_name: "After Hours",
+          mood: "Energetic",
+          language: "English",
+          song_image_url: "https://c.saavncdn.com/After-Hours-English-2020-20221005191124-500x500.jpg",
+          youtube_url: "https://www.youtube.com/watch?v=ABCD7890",
+          spotify_url: "https://open.spotify.com/track/0pqnGHJpmpxLKifKRmU6WQ"
+        },
+        {
+          name: "Save Your Tears",
+          singer: "The Weeknd",
+          movie_name: "After Hours",
+          mood: "Sad",
+          language: "English",
+          song_image_url: "https://c.saavncdn.com/After-Hours-English-2020-20221005191124-500x500.jpg",
+          youtube_url: "https://www.youtube.com/watch?v=XXYlFuWEuKI",
+          spotify_url: "https://open.spotify.com/track/5QO79kh1waicV47BqGRL3g"
+        },
+        {
+          name: "Shivers",
+          singer: "Ed Sheeran",
+          movie_name: "=",
+          mood: "Happy",
+          language: "English",
+          song_image_url: "https://c.saavncdn.com/328/-English-2021-20221005191124-500x500.jpg",
+          youtube_url: "https://www.youtube.com/watch?v=Il0S8BoucSA",
+          spotify_url: "https://open.spotify.com/track/6bQfNiqyCX7UaQSvVVGo4I"
+        }
+      ];
+    }
+
+    function showTestSongs() {
+      const testSongs = [
+        {
+          name: "Test Song 1",
+          singer: "Test Singer",
+          movie_name: "Test Movie",
+          mood: "Happy",
+          language: "English",
+          song_image_url: "",
+          youtube_url: "https://www.youtube.com",
+          spotify_url: "https://open.spotify.com"
+        },
+        {
+          name: "Test Song 2",
+          singer: "Another Singer",
+          movie_name: "Another Movie",
+          mood: "Romantic",
+          language: "Hindi",
+          song_image_url: "",
+          youtube_url: "https://www.youtube.com",
+          spotify_url: "https://open.spotify.com"
+        }
+      ];
+      
+      allSongs = testSongs;
+      displayMusic(testSongs);
+    }
+
+    function displayMusic(songs) {
+      const grid = document.getElementById("musicGrid");
+      grid.innerHTML = "";
+
+      if (songs.length === 0) {
+        grid.innerHTML = `<p style="text-align:center;color:#ff8c00;">No songs found for selected filters.</p>`;
+        return;
+      }
+
+      songs.forEach(song => {
+        const musicCard = document.createElement('div');
+        musicCard.className = 'music-card';
+        musicCard.innerHTML = `
+          <div class="music-img-container">
+            <img src="${song.song_image_url}" 
+                 alt="${song.name}" 
+                 class="music-img"
+                 onerror="handleImageError(this)" 
+                 onload="handleImageLoad(this)">
+            <div class="music-placeholder">♪</div>
+          </div>
+          <h3 class="music-title" title="${song.name}">${song.name}</h3>
+          <div class="music-info">${song.singer}</div>
+          <div class="music-info">${song.movie_name} | ${song.mood}</div>
+          <div class="music-lang">${song.language}</div>
+          <div class="music-platforms">
+            ${song.youtube_url ? `<button class="platform-btn youtube-btn" onclick="event.stopPropagation(); window.open('${song.youtube_url}', '_blank')">YouTube</button>` : ''}
+            ${song.spotify_url ? `<button class="platform-btn spotify-btn" onclick="event.stopPropagation(); window.open('${song.spotify_url}', '_blank')">Spotify</button>` : ''}
+          </div>
+        `;
+        
+        // Add click event
+        musicCard.addEventListener('click', function() {
+          console.log("🎵 Clicked song:", song.name);
+          openMusicModal(song);
+        });
+        
+        grid.appendChild(musicCard);
+      });
+      
+      // Update viewed badges after songs are displayed
+      updateViewedBadges();
+    }
+
+    function applyFilters() {
+      const lang = document.getElementById("languageFilter").value.toLowerCase();
+      const search = document.getElementById("searchBox").value.toLowerCase();
+      
+      currentFilters.language = lang;
+      currentFilters.search = search;
+
+      let filtered = allSongs.filter(s =>
+        (currentFilters.language === "" || (s.language && s.language.toLowerCase() === currentFilters.language)) &&
+        (currentFilters.search === "" || (s.name && s.name.toLowerCase().includes(currentFilters.search))) &&
+        (currentFilters.mood === "" || (s.mood && s.mood.toLowerCase() === currentFilters.mood))
+      );
+
+      displayMusic(filtered);
+    }
+
+    function setupFilterDropdown() {
+      const filterIcon = document.getElementById('filterIcon');
+      const filterDropdown = document.getElementById('filterDropdown');
+      const applyFiltersBtn = document.getElementById('applyFiltersBtn');
+      
+      filterIcon.addEventListener('click', () => {
+        filterDropdown.classList.toggle('active');
+      });
+      
+      document.addEventListener('click', (e) => {
+        if (!filterDropdown.contains(e.target) && !filterIcon.contains(e.target)) {
+          filterDropdown.classList.remove('active');
+        }
+      });
+      
+      applyFiltersBtn.addEventListener('click', () => {
+        const moodRadios = document.getElementsByName('mood');
+        for (const radio of moodRadios) {
+          if (radio.checked) {
+            currentFilters.mood = radio.value;
+            break;
+          }
+        }
+        
+        applyFilters();
+        filterDropdown.classList.remove('active');
+      });
+    }
+
+    function setupHistoryModal() {
+      const historyIcon = document.getElementById('historyIcon');
+      const viewHistoryBtn = document.getElementById('viewHistoryBtn');
+      const clearHistoryBtn = document.getElementById('clearHistoryBtn');
+      
+      historyIcon.addEventListener('click', openHistoryModal);
+      viewHistoryBtn.addEventListener('click', openHistoryModal);
+      clearHistoryBtn.addEventListener('click', () => {
+        if (confirm('Are you sure you want to clear your listening history?')) {
+          clearMusicHistory();
+        }
+      });
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      initializeMusicHistory();
+      loadMusicRecommendations();
+      setupFilterDropdown();
+      setupHistoryModal();
+      
+      document.getElementById("searchBtn").addEventListener("click", applyFilters);
+      document.getElementById("languageFilter").addEventListener("change", applyFilters);
+      document.getElementById("searchBox").addEventListener("keypress", (e) => {
+        if (e.key === "Enter") applyFilters();
+      });
+    });
+  </script>
+
+</body>
+</html>

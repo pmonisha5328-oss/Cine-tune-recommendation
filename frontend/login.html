@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CineTune - Login</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0c0c2e 0%, #1a1a4a 50%, #2d1b69 100%);
+            color: #fff;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Header Styles */
+        header {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            padding: 20px 40px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 30px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .home-btn {
+            background: linear-gradient(45deg, #00b4db, #0083b0);
+            color: white;
+        }
+
+        .cancel-btn {
+            background: linear-gradient(45deg, #ff416c, #ff4b2b);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Main Content */
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 80vh;
+            padding: 40px 20px;
+            position: relative;
+            z-index: 5;
+        }
+
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 30px;
+            background: linear-gradient(45deg, #ff0080, #ff8c00, #40e0d0);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-align: center;
+            animation: textShimmer 3s infinite alternate;
+        }
+
+        @keyframes textShimmer {
+            0% {
+                background-position: 0% 50%;
+            }
+            100% {
+                background-position: 100% 50%;
+            }
+        }
+
+        /* Login Container */
+        .login-container {
+            width: 100%;
+            max-width: 500px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .form-toggle {
+            display: flex;
+            margin-bottom: 30px;
+            border-radius: 10px;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .toggle-btn {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            background: transparent;
+            border: none;
+            color: #fff;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        input[type="radio"] {
+            display: none;
+        }
+
+        #login-radio:checked ~ .form-toggle .login-toggle,
+        #signup-radio:checked ~ .form-toggle .signup-toggle {
+            background: linear-gradient(45deg, #ff0080, #ff8c00);
+        }
+
+        .form-section {
+            display: none;
+        }
+
+        #login-radio:checked ~ .login-section,
+        #signup-radio:checked ~ .signup-section {
+            display: block;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 15px;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #e0e0e0;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.15);
+            color: #fff;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.25);
+            box-shadow: 0 0 0 2px rgba(255, 140, 0, 0.5);
+        }
+        select {
+    background: rgba(255, 255, 255, 0.15) !important;
+    color: #fff !important;
+}
+
+select option {
+    background: #1a1a4a !important;
+    color: #fff !important;
+    padding: 10px;
+}
+
+        input:invalid {
+            border: 1px solid #ff416c;
+        }
+
+        input:valid {
+            border: 1px solid #40e0d0;
+        }
+
+        input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .password-requirements {
+            font-size: 0.8rem;
+            color: #b0b0b0;
+            margin-top: 5px;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.1rem;
+            background: linear-gradient(45deg, #ff0080, #ff8c00);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+            font-weight: 600;
+            box-shadow: 0 5px 15px rgba(255, 0, 128, 0.3);
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(255, 140, 0, 0.4);
+        }
+
+        /* Animation Elements - Background Visuals */
+        .film-reel {
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #333 30%, #000 70%);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+            animation: spin 20s linear infinite;
+            z-index: 1;
+        }
+
+        .reel-1 {
+            top: 15%;
+            left: 10%;
+        }
+
+        .reel-2 {
+            bottom: 20%;
+            right: 8%;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .film-strip {
+            position: absolute;
+            width: 100%;
+            height: 40px;
+            background: repeating-linear-gradient(90deg, 
+                transparent, 
+                transparent 25px, 
+                rgba(255, 255, 255, 0.3) 25px, 
+                rgba(255, 255, 255, 0.3) 50px);
+            animation: filmMove 25s linear infinite;
+            z-index: 1;
+        }
+
+        .strip-1 {
+            top: 25%;
+        }
+
+        .strip-2 {
+            bottom: 30%;
+        }
+
+        @keyframes filmMove {
+            0% {
+                transform: translateX(-100%);
+            }
+            100% {
+                transform: translateX(100%);
+            }
+        }
+
+        .music-note {
+            position: absolute;
+            font-size: 2.5rem;
+            opacity: 0.7;
+            z-index: 1;
+            animation: float 8s ease-in-out infinite;
+        }
+
+        .note-1 {
+            top: 20%;
+            left: 15%;
+            color: #ff0080;
+            animation-delay: 0s;
+        }
+
+        .note-2 {
+            top: 65%;
+            right: 20%;
+            color: #40e0d0;
+            animation-delay: 1s;
+        }
+
+        .note-3 {
+            top: 40%;
+            left: 5%;
+            color: #ff8c00;
+            animation-delay: 2s;
+        }
+
+        .note-4 {
+            top: 75%;
+            right: 5%;
+            color: #ff0080;
+            animation-delay: 3s;
+        }
+
+        .spotlight {
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255, 140, 0, 0.2) 0%, transparent 70%);
+            filter: blur(20px);
+            animation: spotlightMove 15s ease-in-out infinite alternate;
+            z-index: 0;
+        }
+
+        .spotlight-1 {
+            top: 10%;
+            left: 10%;
+        }
+
+        .spotlight-2 {
+            bottom: 10%;
+            right: 10%;
+            background: radial-gradient(circle, rgba(64, 224, 208, 0.2) 0%, transparent 70%);
+            animation-delay: 5s;
+        }
+
+        @keyframes spotlightMove {
+            0% {
+                transform: translate(0, 0);
+            }
+            100% {
+                transform: translate(100px, 50px);
+            }
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .login-container {
+                padding: 30px 20px;
+            }
+            
+            .page-title {
+                font-size: 2rem;
+            }
+            
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+            
+            .btn {
+                padding: 10px 20px;
+            }
+            
+            .film-reel {
+                width: 80px;
+                height: 80px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Background Animation Elements -->
+    <div class="film-reel reel-1"></div>
+    <div class="film-reel reel-2"></div>
+    
+    <div class="film-strip strip-1"></div>
+    <div class="film-strip strip-2"></div>
+    
+    <div class="music-note note-1">♪</div>
+    <div class="music-note note-2">♫</div>
+    <div class="music-note note-3">♬</div>
+    <div class="music-note note-4">♪</div>
+    
+    <div class="spotlight spotlight-1"></div>
+    <div class="spotlight spotlight-2"></div>
+
+    <!-- Main Content -->
+    <header>
+        <div class="nav-buttons">
+            <a href="index.html" class="btn home-btn">Home</a>
+            <a href="recommendations.html" class="btn cancel-btn">Back</a>
+        </div>
+    </header>
+
+    <div class="main-content">
+        <h1 class="page-title">Welcome to CineTune</h1>
+        
+        <div class="login-container">
+            <input type="radio" name="form-toggle" id="login-radio" checked>
+            <input type="radio" name="form-toggle" id="signup-radio">
+            
+            <div class="form-toggle">
+                <label for="login-radio" class="toggle-btn login-toggle">Login</label>
+                <label for="signup-radio" class="toggle-btn signup-toggle">Sign Up</label>
+            </div>
+            
+            <!-- Login Form -->
+                        <!-- Login Form -->
+            <!-- Login Form -->
+<div class="form-section login-section">
+    <form action="mood-selection.html" method="GET">
+        <div class="form-group">
+            <label for="login-username">Username</label>
+            <input type="text" id="login-username" name="username" placeholder="Enter your username" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="login-password">Password</label>
+            <input type="password" id="login-password" name="password" placeholder="Enter your password" required>
+        </div>
+        
+        <button type="submit" class="submit-btn">Login</button>
+    </form>
+</div>
+            
+            <!-- Signup Form -->
+                        <!-- Signup Form -->
+         <div class="form-section signup-section">
+    <form action="login-success.html" method="GET">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="first-name">First Name</label>
+                            <input type="text" id="first-name" name="first_name" placeholder="Enter your first name" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="last-name">Last Name</label>
+                            <input type="text" id="last-name" name="last_name" placeholder="Enter your last name" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="dob">Date of Birth</label>
+                        <input type="date" id="dob" name="dob" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="signup-email">Email Address</label>
+                        <input type="email" id="signup-email" name="email" placeholder="Enter your email" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="signup-password">Password</label>
+                        <input type="password" id="signup-password" name="password" placeholder="Create a password" 
+                               pattern="^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{7,}$" 
+                               title="Password must be at least 7 characters long and include one number and one special character" required>
+                        <div class="password-requirements">Password must be at least 7 characters long and include one number and one special character</div>
+                    </div>
+                    
+                   <div class="form-group">
+    <label for="phone">Phone Number</label>
+    <input type="tel" id="phone" name="phone" placeholder="+91XXXXXXXXXX" 
+           pattern="^\+91[0-9]{10}$" 
+           title="Phone number must start with +91 followed by exactly 10 digits" required>
+    <div class="password-requirements">Phone number must start with +91 followed by exactly 10 digits</div>
+</div>
+                    
+                   
+                    
+                   
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="state">State</label>
+                            <select id="state" required>
+                                <option value="">Select your state</option>
+                                <option value="AN">Andhra Pradesh</option>
+                                <option value="AR">Arunachal Pradesh</option>
+                                <option value="AS">Assam</option>
+                                <option value="BI">Bihar</option>
+                                <option value="CH">Chhattisgarh</option>
+                                <option value="GO">Goa</option>
+                                <option value="GU">Gujarat</option>
+                                <option value="HA">Haryana</option>
+                                <option value="HI">Himachal Pradesh</option>
+                                <option value="JH">Jharkhand</option>
+                                <option value="KA">Karnataka</option>
+                                <option value="KE">Kerala</option>
+                                <option value="MA">Madhya Pradesh</option>
+                                <option value="MA">Maharashtra</option>
+                                <option value="MA">Manipur</option>
+                                <option value="ME">Meghalaya</option>
+                                <option value="MI">Mizoram</option>
+                                <option value="NA">Nagaland</option>
+                                <option value="OD">Odisha</option>
+                                <option value="PU">Punjab</option>
+                                <option value="RA">Rajasthan</option>
+                                <option value="SI">Sikkim</option>
+                                <option value="TA">Tamil Nadu</option>
+                                <option value="TE">Telangana</option>
+                                <option value="TR">Tripura</option>
+                                <option value="UT">Uttar Pradesh</option>
+                                <option value="UT">Uttarakhand</option>
+                                <option value="WE">West Bengal</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="city">City</label>
+                            <input type="text" id="city" placeholder="Enter your city" required>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="submit-btn">Create Account</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script>
+// Auto-save user data when forms are submitted
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle signup form submission
+    // Handle signup form submission
+const signupForm = document.querySelector('.signup-section form');
+if (signupForm) {
+    signupForm.addEventListener('submit', function(e) {
+        // Collect all user data
+        const userData = {
+            first_name: document.getElementById('first-name').value,
+            last_name: document.getElementById('last-name').value,
+            dob: document.getElementById('dob').value,
+            email: document.getElementById('signup-email').value,
+            phone: document.getElementById('phone').value,
+            state: document.getElementById('state').value,
+            city: document.getElementById('city').value,
+            password: document.getElementById('signup-password').value,
+            account_created: new Date().toISOString(),
+            login_count: 0
+        };
+        
+        // Auto-save to browser storage
+        localStorage.setItem('userProfile', JSON.stringify(userData));
+        localStorage.setItem('hasAccount', 'true');
+        
+        // Let form submit to login-success.html
+        // No need to prevent default
+    });
+}
+    // Handle login form submission  
+    const loginForm = document.querySelector('.login-section form');
+    if (loginForm) {
+        loginForm.addEventListener('submit', function(e) {
+            const username = document.getElementById('login-username').value;
+            const password = document.getElementById('login-password').value;
+            
+            // Check if user has an account
+            const hasAccount = localStorage.getItem('hasAccount');
+            const userProfile = JSON.parse(localStorage.getItem('userProfile'));
+            
+            if (!hasAccount || !userProfile) {
+                e.preventDefault(); // Stop form submission
+                alert('Please sign up first to create an account!');
+                // Switch to signup tab
+                document.getElementById('signup-radio').checked = true;
+                document.querySelector('.login-section').style.display = 'none';
+                document.querySelector('.signup-section').style.display = 'block';
+                return;
+            }
+            
+            // Check if credentials match (basic validation)
+            if (username !== userProfile.first_name && username !== userProfile.email) {
+                e.preventDefault();
+                alert('Invalid username! Please use your first name or email to login.');
+                return;
+            }
+            
+            if (password !== userProfile.password) {
+                e.preventDefault();
+                alert('Invalid password! Please try again.');
+                return;
+            }
+            
+            // Update login count and last login time
+            userProfile.login_count = (userProfile.login_count || 0) + 1;
+            userProfile.last_login = new Date().toISOString();
+            userProfile.total_logins = (userProfile.total_logins || 0) + 1;
+            
+            // Save updated user data
+            localStorage.setItem('userProfile', JSON.stringify(userProfile));
+            
+            // Show login success message for returning users
+           
+        });
+    }
+});
+
+// Update form actions to go to mood selection page
+// Only update login form to go to mood selection, leave signup form as is
+document.addEventListener('DOMContentLoaded', function() {
+    const loginForm = document.querySelector('.login-section form');
+    
+    if (loginForm) {
+        loginForm.action = 'mood-selection.html';
+    }
+    // Remove the signup form override - let it go to login-success.html as defined in HTML
+});
+</script>
+<script>
+document.querySelector("#login-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const email = document.querySelector("#login-email").value;
+    const password = document.querySelector("#login-password").value;
+
+    const res = await fetch("http://127.0.0.1:5000/login", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({email, password})
+    });
+    const data = await res.json();
+    if (data.status === "success") {
+        window.location.href = "login-success.html";
+    } else {
+        alert(data.message);
+    }
+});
+</script>
+
+</body>
+</html>
